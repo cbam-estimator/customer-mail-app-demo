@@ -1,20 +1,43 @@
-"use client"
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { ImportPreviewData, Supplier, GoodsImportRow } from "@/types/excel"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { ImportPreviewData, GoodsImportRow } from "@/types/excel";
+import { Supplier } from "@/types/supplier";
 
 interface ImportPreviewDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: (data: { suppliers: Supplier[]; goodsImports: GoodsImportRow[]; period: string }) => void
-  data: ImportPreviewData
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (data: {
+    suppliers: Supplier[];
+    goodsImports: GoodsImportRow[];
+    period: string;
+  }) => void;
+  data: ImportPreviewData;
 }
 
-export function ImportPreviewDialog({ isOpen, onClose, onConfirm, data }: ImportPreviewDialogProps) {
+export function ImportPreviewDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  data,
+}: ImportPreviewDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
@@ -25,7 +48,9 @@ export function ImportPreviewDialog({ isOpen, onClose, onConfirm, data }: Import
         <div className="flex-1 overflow-hidden">
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="p-4 bg-muted rounded-lg">
-              <div className="text-sm text-muted-foreground">Suppliers to import</div>
+              <div className="text-sm text-muted-foreground">
+                Suppliers to import
+              </div>
               <div className="text-2xl font-bold">{data.totalSuppliers}</div>
             </div>
             <div className="p-4 bg-muted rounded-lg">
@@ -60,11 +85,16 @@ export function ImportPreviewDialog({ isOpen, onClose, onConfirm, data }: Import
                   <TableBody>
                     {data.suppliers.map((supplier, index) => (
                       <TableRow key={supplier.id || index}>
-                        <TableCell className="font-medium">{supplier.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {supplier.name}
+                        </TableCell>
                         <TableCell>
-                          {supplier.address.street} {supplier.address.streetNumber}
+                          {supplier.address.street}{" "}
+                          {supplier.address.streetNumber}
                           {supplier.address.additionalLine && (
-                            <div className="text-sm text-muted-foreground">{supplier.address.additionalLine}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {supplier.address.additionalLine}
+                            </div>
                           )}
                         </TableCell>
                         <TableCell>
@@ -96,7 +126,9 @@ export function ImportPreviewDialog({ isOpen, onClose, onConfirm, data }: Import
                   <TableBody>
                     {data.goodsImports.map((entry, index) => (
                       <TableRow key={index}>
-                        <TableCell className="font-medium">{entry.cnCode}</TableCell>
+                        <TableCell className="font-medium">
+                          {entry.cnCode}
+                        </TableCell>
                         <TableCell>{entry.manufacturer}</TableCell>
                         <TableCell>{entry.quantity}</TableCell>
                         <TableCell>{entry.unit}</TableCell>
@@ -129,5 +161,5 @@ export function ImportPreviewDialog({ isOpen, onClose, onConfirm, data }: Import
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

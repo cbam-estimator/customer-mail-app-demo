@@ -1,33 +1,54 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { GoodsImportRow } from "@/types/excel"
-import { cnCodes } from "@/data/cnCodes"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format, isValid } from "date-fns"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { GoodsImportRow } from "@/types/excel";
+import { cnCodes } from "@/data/cnCodes";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format, isValid } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface AddGoodsEntryDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (newEntry: GoodsImportRow) => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (newEntry: GoodsImportRow) => void;
 }
 
 // Helper function to generate a random number between min and max with 2 decimal places
 const generateRandomValue = (min: number, max: number): number => {
-  return Number.parseFloat((Math.random() * (max - min) + min).toFixed(2))
-}
+  return Number.parseFloat((Math.random() * (max - min) + min).toFixed(2));
+};
 
-export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDialogProps) {
+export function AddGoodsEntryDialog({
+  isOpen,
+  onClose,
+  onSave,
+}: AddGoodsEntryDialogProps) {
   const [newEntry, setNewEntry] = useState<GoodsImportRow>({
+    id: 1,
     remarks: "",
     cnCode: "",
     manufacturer: "",
@@ -40,33 +61,38 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
     importFile: "",
     seeDirect: generateRandomValue(1.5, 4.5),
     seeIndirect: generateRandomValue(1.5, 4.5),
-  })
-  const [date, setDate] = useState<Date>(new Date())
+    supplierId: 1, // Assuming a default supplier ID, adjust as needed
+  });
+  const [date, setDate] = useState<Date>(new Date());
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setNewEntry((prev) => ({
       ...prev,
-      [name]: name === "quantity" || name === "seeDirect" || name === "seeIndirect" ? Number.parseFloat(value) : value,
-    }))
-  }
+      [name]:
+        name === "quantity" || name === "seeDirect" || name === "seeIndirect"
+          ? Number.parseFloat(value)
+          : value,
+    }));
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setNewEntry((prev) => ({ ...prev, [name]: value }))
-  }
+    setNewEntry((prev) => ({ ...prev, [name]: value }));
+  };
 
   const getQuarter = (date: Date) => {
-    const month = date.getMonth()
-    return `Q${Math.floor(month / 3) + 1}-${date.getFullYear()}`
-  }
+    const month = date.getMonth();
+    return `Q${Math.floor(month / 3) + 1}-${date.getFullYear()}`;
+  };
 
   const handleSave = () => {
     onSave({
       ...newEntry,
       date: isValid(date) ? date : new Date(),
       quarter: getQuarter(isValid(date) ? date : new Date()),
-    })
+    });
     setNewEntry({
+      id: 1,
       remarks: "",
       cnCode: "",
       manufacturer: "",
@@ -79,9 +105,10 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
       importFile: "",
       seeDirect: generateRandomValue(1.5, 4.5),
       seeIndirect: generateRandomValue(1.5, 4.5),
-    })
-    onClose()
-  }
+      supplierId: 1, // Assuming a default supplier ID, adjust as needed
+    });
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -94,7 +121,10 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
             <Label htmlFor="cnCode" className="text-right">
               CN Code
             </Label>
-            <Select value={newEntry.cnCode} onValueChange={(value) => handleSelectChange("cnCode", value)}>
+            <Select
+              value={newEntry.cnCode}
+              onValueChange={(value) => handleSelectChange("cnCode", value)}
+            >
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select CN Code" />
               </SelectTrigger>
@@ -136,7 +166,13 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
             <Label htmlFor="unit" className="text-right">
               Unit
             </Label>
-            <Input id="unit" name="unit" value={newEntry.unit} onChange={handleInputChange} className="col-span-3" />
+            <Input
+              id="unit"
+              name="unit"
+              value={newEntry.unit}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="productionMethod" className="text-right">
@@ -212,7 +248,10 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
-                  className={cn("w-[280px] justify-start text-left font-normal", !date && "text-muted-foreground")}
+                  className={cn(
+                    "w-[280px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
                 >
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
@@ -231,7 +270,12 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
             <Label htmlFor="quarter" className="text-right">
               Quarter
             </Label>
-            <Input id="quarter" value={getQuarter(date)} className="col-span-3" readOnly />
+            <Input
+              id="quarter"
+              value={getQuarter(date)}
+              className="col-span-3"
+              readOnly
+            />
           </div>
         </div>
         <DialogFooter>
@@ -241,5 +285,5 @@ export function AddGoodsEntryDialog({ isOpen, onClose, onSave }: AddGoodsEntryDi
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

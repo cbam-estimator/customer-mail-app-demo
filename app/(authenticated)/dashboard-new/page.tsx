@@ -100,6 +100,12 @@ const initialSuppliers: Supplier[] = [
     remarks: "Die Beispiele werden nicht erfasst. Bitte nicht löschen.",
     files: [],
     consultationHours: 0,
+
+    see_direct: 1.2,
+    see_indirect: 0.8,
+    see_total: 2.0,
+    emission_factor: 1.5,
+    electricity_emissions: 0.5,
   },
   // Add more sample suppliers if needed
 ];
@@ -119,6 +125,7 @@ const initialGoodsImports: GoodsImportRow[] = [
     seeDirect: 2.34,
     seeIndirect: 3.12,
     importFile: "import_2023_Q1.xlsx",
+    supplierId: 1, // Assuming this entry belongs to the first supplier
   },
   // Add more sample goods if needed
 ];
@@ -276,6 +283,12 @@ export default function DashboardNew() {
               validUntil: validUntilIso,
               files: [], // Files are not in the database schema yet
               consultationHours: supplier.consulting_hours || 0,
+              see_direct: 2.1,
+              see_indirect: 1.5,
+              see_total: 3.6,
+              emission_factor: supplier.emission_factor || 0,
+              electricity_emissions: supplier.electricity_emissions || 0,
+              productionMethodCode: supplier.productionMethodCode || "",
             };
           });
 
@@ -344,6 +357,7 @@ export default function DashboardNew() {
               quarter: quarter,
               seeDirect: good.see_direct !== null ? good.see_direct : 0,
               seeIndirect: good.see_indirect !== null ? good.see_indirect : 0,
+              supplierId: 1,
             };
           });
 
@@ -495,7 +509,7 @@ export default function DashboardNew() {
   };
 
   const handleFilterChange = (
-    filterType: "country" | "status",
+    filterType: "country" | "status" | "supplier",
     key: string,
     value: CheckedState
   ) => {

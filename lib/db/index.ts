@@ -1,12 +1,12 @@
 import { db } from "./config"
 import { suppliers, cnCodes } from "./schema"
-import { eq } from "drizzle-orm"
+import { eq, inArray } from "drizzle-orm"
 
 export async function getSuppliers() {
   try {
     const result = await db.select().from(suppliers)
     const supplierIds = result.map((s) => s.id)
-    const cnCodesResult = await db.select().from(cnCodes).where(eq(cnCodes.supplierId, supplierIds))
+    const cnCodesResult = await db.select().from(cnCodes).where(inArray(cnCodes.supplierId, supplierIds))
 
     return result.map((supplier) => ({
       ...supplier,

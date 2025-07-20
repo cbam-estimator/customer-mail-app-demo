@@ -1,22 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TrendingUp, BarChart, FilterIcon, ChevronDown, ChevronUp } from "lucide-react"
-import { EmissionsVisualization } from "@/components/EmissionsVisualization"
-import { ForecastVisualization } from "@/components/ForecastVisualization"
-import { Checkbox } from "@/components/ui/checkbox"
-import type { GoodsImportRow } from "@/types/excel"
+import { useState, useEffect, useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  TrendingUp,
+  BarChart,
+  FilterIcon,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { EmissionsVisualization } from "@/components/EmissionsVisualization";
+import { ForecastVisualization } from "@/components/ForecastVisualization";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { GoodsImportRow } from "@/types/excel";
 
 // This is a client-side component, so we need to initialize with empty data
 // and then fetch the actual data on the client
 export default function InsightsPage() {
-  const [activeTab, setActiveTab] = useState("emissions")
-  const [goodsImports, setGoodsImports] = useState<GoodsImportRow[]>([])
-  const [viewMode, setViewMode] = useState<"quarters" | "suppliers" | "cnCodes">("quarters")
-  const [showFilters, setShowFilters] = useState(false)
-  const [limitData, setLimitData] = useState(true)
+  const [activeTab, setActiveTab] = useState("emissions");
+  const [goodsImports, setGoodsImports] = useState<GoodsImportRow[]>([]);
+  const [viewMode, setViewMode] = useState<
+    "quarters" | "suppliers" | "cnCodes"
+  >("quarters");
+  const [showFilters, setShowFilters] = useState(false);
+  const [limitData, setLimitData] = useState(true);
   const [filterOptions, setFilterOptions] = useState({
     startDate: "",
     endDate: "",
@@ -24,42 +32,70 @@ export default function InsightsPage() {
     maxQuantity: "",
     selectedSuppliers: [],
     selectedCnCodes: [],
-  })
+  });
 
   // New filter state variables
-  const [openFilter, setOpenFilter] = useState<"categories" | "cnCodes" | "countries" | "suppliers" | null>(null)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedCnCodes, setSelectedCnCodes] = useState<string[]>([])
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([])
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([])
+  const [openFilter, setOpenFilter] = useState<
+    "categories" | "cnCodes" | "countries" | "suppliers" | null
+  >(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCnCodes, setSelectedCnCodes] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
 
   // Refs for handling outside clicks
-  const categoriesFilterRef = useRef<HTMLDivElement>(null)
-  const cnCodesFilterRef = useRef<HTMLDivElement>(null)
-  const countriesFilterRef = useRef<HTMLDivElement>(null)
-  const suppliersFilterRef = useRef<HTMLDivElement>(null)
+  const categoriesFilterRef = useRef<HTMLDivElement>(null);
+  const cnCodesFilterRef = useRef<HTMLDivElement>(null);
+  const countriesFilterRef = useRef<HTMLDivElement>(null);
+  const suppliersFilterRef = useRef<HTMLDivElement>(null);
 
   // Sample data for the filters
-  const categories = ["Iron and Steel", "Aluminum", "Cement", "Fertilizers", "Electricity", "Hydrogen"]
-  const cnCodes = ["73084000", "73269098", "76169990", "84212300", "84213100", "84219990"]
-  const countries = ["China", "Germany", "United States", "India", "Japan", "South Korea"]
-  const suppliers = ["Jinhua Ruifeng", "Jinhua Huagang Athletic Equipment", "Jinhua Zhenfei Tools Co., LTD"]
+  const categories = [
+    "Iron and Steel",
+    "Aluminum",
+    "Cement",
+    "Fertilizers",
+    "Electricity",
+    "Hydrogen",
+  ];
+  const cnCodes = [
+    "73084000",
+    "73269098",
+    "76169990",
+    "84212300",
+    "84213100",
+    "84219990",
+  ];
+  const countries = [
+    "China",
+    "Germany",
+    "United States",
+    "India",
+    "Japan",
+    "South Korea",
+  ];
+  const suppliers = [
+    "Jinhua Ruifeng",
+    "Jinhua Huagang Athletic Equipment",
+    "Jinhua Zhenfei Tools Co., LTD",
+  ];
 
   useEffect(() => {
     // In a real application, you would fetch this data from an API
     // For now, we'll use the data from localStorage if available
-    const storedGoodsImports = localStorage.getItem("goodsImports")
+    const storedGoodsImports = localStorage.getItem("goodsImports");
     if (storedGoodsImports) {
       try {
-        const parsedData = JSON.parse(storedGoodsImports)
-        setGoodsImports(parsedData)
+        const parsedData = JSON.parse(storedGoodsImports);
+        setGoodsImports(parsedData);
       } catch (error) {
-        console.error("Error parsing goods imports from localStorage:", error)
+        console.error("Error parsing goods imports from localStorage:", error);
       }
     } else {
       // Fallback to some sample data if nothing is in localStorage
       setGoodsImports([
         {
+          id: 1,
           remarks: "",
           cnCode: "73084000",
           manufacturer: "Jinhua Ruifeng",
@@ -71,8 +107,10 @@ export default function InsightsPage() {
           quarter: "Q1-2023",
           seeDirect: 2.34,
           seeIndirect: 3.12,
+          supplierId: 1,
         },
         {
+          id: 2,
           remarks: "",
           cnCode: "73269098",
           manufacturer: "Jinhua Huagang Athletic Equipment",
@@ -84,8 +122,10 @@ export default function InsightsPage() {
           quarter: "Q1-2023",
           seeDirect: 1.87,
           seeIndirect: 2.65,
+          supplierId: 1,
         },
         {
+          id: 3,
           remarks: "",
           cnCode: "76169990",
           manufacturer: "Jinhua Zhenfei Tools Co., LTD",
@@ -97,8 +137,10 @@ export default function InsightsPage() {
           quarter: "Q1-2023",
           seeDirect: 3.45,
           seeIndirect: 2.98,
+          supplierId: 1,
         },
         {
+          id: 4,
           remarks: "",
           cnCode: "73269098",
           manufacturer: "Jinhua Zhenfei Tools Co., LTD",
@@ -110,9 +152,11 @@ export default function InsightsPage() {
           quarter: "Q1-2023",
           seeDirect: 2.12,
           seeIndirect: 1.78,
+          supplierId: 1,
         },
         // Add some data for Q2-2023
         {
+          id: 5,
           remarks: "",
           cnCode: "73084000",
           manufacturer: "Jinhua Ruifeng",
@@ -124,8 +168,10 @@ export default function InsightsPage() {
           quarter: "Q2-2023",
           seeDirect: 2.45,
           seeIndirect: 3.22,
+          supplierId: 1,
         },
         {
+          id: 6,
           remarks: "",
           cnCode: "73269098",
           manufacturer: "Jinhua Huagang Athletic Equipment",
@@ -137,9 +183,11 @@ export default function InsightsPage() {
           quarter: "Q2-2023",
           seeDirect: 1.92,
           seeIndirect: 2.78,
+          supplierId: 1,
         },
         // Add some data for Q3-2023
         {
+          id: 7,
           remarks: "",
           cnCode: "76169990",
           manufacturer: "Jinhua Zhenfei Tools Co., LTD",
@@ -151,8 +199,10 @@ export default function InsightsPage() {
           quarter: "Q3-2023",
           seeDirect: 3.51,
           seeIndirect: 3.05,
+          supplierId: 1,
         },
         {
+          id: 8,
           remarks: "",
           cnCode: "73084000",
           manufacturer: "Jinhua Ruifeng",
@@ -164,9 +214,11 @@ export default function InsightsPage() {
           quarter: "Q3-2023",
           seeDirect: 2.38,
           seeIndirect: 3.18,
+          supplierId: 1,
         },
         // Add some data for Q4-2023
         {
+          id: 9,
           remarks: "",
           cnCode: "73269098",
           manufacturer: "Jinhua Huagang Athletic Equipment",
@@ -178,8 +230,10 @@ export default function InsightsPage() {
           quarter: "Q4-2023",
           seeDirect: 1.95,
           seeIndirect: 2.72,
+          supplierId: 1,
         },
         {
+          id: 10,
           remarks: "",
           cnCode: "76169990",
           manufacturer: "Jinhua Zhenfei Tools Co., LTD",
@@ -191,16 +245,17 @@ export default function InsightsPage() {
           quarter: "Q4-2023",
           seeDirect: 3.48,
           seeIndirect: 3.02,
+          supplierId: 1,
         },
-      ])
+      ]);
     }
-  }, [])
+  }, []);
 
   const handleApplyFilters = () => {
     // In a real application, you would apply the filters to the data
     // For now, we'll just close the filter panel
-    setShowFilters(false)
-  }
+    setShowFilters(false);
+  };
 
   // Handle clicks outside the filter dropdowns
   useEffect(() => {
@@ -210,70 +265,74 @@ export default function InsightsPage() {
         categoriesFilterRef.current &&
         !categoriesFilterRef.current.contains(event.target as Node)
       ) {
-        setOpenFilter(null)
+        setOpenFilter(null);
       }
       if (
         openFilter === "cnCodes" &&
         cnCodesFilterRef.current &&
         !cnCodesFilterRef.current.contains(event.target as Node)
       ) {
-        setOpenFilter(null)
+        setOpenFilter(null);
       }
       if (
         openFilter === "countries" &&
         countriesFilterRef.current &&
         !countriesFilterRef.current.contains(event.target as Node)
       ) {
-        setOpenFilter(null)
+        setOpenFilter(null);
       }
       if (
         openFilter === "suppliers" &&
         suppliersFilterRef.current &&
         !suppliersFilterRef.current.contains(event.target as Node)
       ) {
-        setOpenFilter(null)
+        setOpenFilter(null);
       }
     }
 
     // Add event listener when a filter is open
     if (openFilter) {
-      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     // Clean up the event listener
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [openFilter])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openFilter]);
 
   // Reset all filters
   const resetFilters = () => {
-    setSelectedCategories([])
-    setSelectedCnCodes([])
-    setSelectedCountries([])
-    setSelectedSuppliers([])
-  }
+    setSelectedCategories([]);
+    setSelectedCnCodes([]);
+    setSelectedCountries([]);
+    setSelectedSuppliers([]);
+  };
 
   // Handle removing a filter tag
   const handleRemoveCategory = (category: string) => {
-    setSelectedCategories(selectedCategories.filter((c) => c !== category))
-  }
+    setSelectedCategories(selectedCategories.filter((c) => c !== category));
+  };
 
   const handleRemoveCnCode = (cnCode: string) => {
-    setSelectedCnCodes(selectedCnCodes.filter((c) => c !== cnCode))
-  }
+    setSelectedCnCodes(selectedCnCodes.filter((c) => c !== cnCode));
+  };
 
   const handleRemoveCountry = (country: string) => {
-    setSelectedCountries(selectedCountries.filter((c) => c !== country))
-  }
+    setSelectedCountries(selectedCountries.filter((c) => c !== country));
+  };
 
   const handleRemoveSupplier = (supplier: string) => {
-    setSelectedSuppliers(selectedSuppliers.filter((s) => s !== supplier))
-  }
+    setSelectedSuppliers(selectedSuppliers.filter((s) => s !== supplier));
+  };
 
   return (
     <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
-      <Tabs defaultValue="emissions" onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        defaultValue="emissions"
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
         <div className="mt-6 mb-4">
           <TabsList className="bg-gray-100 p-1 rounded-md w-auto shadow-sm border border-gray-200">
             <TabsTrigger
@@ -294,12 +353,21 @@ export default function InsightsPage() {
         </div>
 
         <Card className="mt-4 mb-8">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4" style={{ padding: "1rem" }}>
+          <CardHeader
+            className="flex flex-row items-center justify-between space-y-0 p-4"
+            style={{ padding: "1rem" }}
+          >
             <CardTitle
               className="text-xl font-semibold"
-              style={{ fontSize: "1.25rem", lineHeight: "1.75rem", fontWeight: 600 }}
+              style={{
+                fontSize: "1.25rem",
+                lineHeight: "1.75rem",
+                fontWeight: 600,
+              }}
             >
-              {activeTab === "emissions" ? "Emissions" : "CBAM Cost Forecast (2026-2034)"}
+              {activeTab === "emissions"
+                ? "Emissions"
+                : "CBAM Cost Forecast (2026-2034)"}
             </CardTitle>
           </CardHeader>
 
@@ -313,7 +381,11 @@ export default function InsightsPage() {
                   >
                     <FilterIcon className="mr-2 h-4 w-4" />
                     Filter
-                    {showFilters ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                    {showFilters ? (
+                      <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    )}
                   </button>
                 </div>
 
@@ -322,7 +394,9 @@ export default function InsightsPage() {
                     <button
                       type="button"
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
-                        viewMode === "quarters" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        viewMode === "quarters"
+                          ? "bg-gray-100 text-gray-900"
+                          : "bg-white text-gray-500"
                       } rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500`}
                       onClick={() => setViewMode("quarters")}
                     >
@@ -331,11 +405,13 @@ export default function InsightsPage() {
                     <button
                       type="button"
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
-                        viewMode === "suppliers" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        viewMode === "suppliers"
+                          ? "bg-gray-100 text-gray-900"
+                          : "bg-white text-gray-500"
                       } rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500`}
                       onClick={() => {
-                        setViewMode("suppliers")
-                        setLimitData(true) // Ensure limitData is true when switching to suppliers view
+                        setViewMode("suppliers");
+                        setLimitData(true); // Ensure limitData is true when switching to suppliers view
                       }}
                     >
                       By Suppliers
@@ -343,7 +419,9 @@ export default function InsightsPage() {
                     <button
                       type="button"
                       className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
-                        viewMode === "cnCodes" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        viewMode === "cnCodes"
+                          ? "bg-gray-100 text-gray-900"
+                          : "bg-white text-gray-500"
                       } rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500`}
                       onClick={() => setViewMode("cnCodes")}
                     >
@@ -439,13 +517,21 @@ export default function InsightsPage() {
                       {/* Good Categories filter */}
                       <div className="relative" ref={categoriesFilterRef}>
                         <button
-                          onClick={() => setOpenFilter(openFilter === "categories" ? null : "categories")}
+                          onClick={() =>
+                            setOpenFilter(
+                              openFilter === "categories" ? null : "categories"
+                            )
+                          }
                           className="w-full flex items-center justify-between bg-white border rounded px-3 py-2 text-sm"
                         >
                           <span>
-                            Good Categories {selectedCategories.length > 0 && `(${selectedCategories.length})`}
+                            Good Categories{" "}
+                            {selectedCategories.length > 0 &&
+                              `(${selectedCategories.length})`}
                           </span>
-                          <span className="text-gray-500">{openFilter === "categories" ? "▲" : "▼"}</span>
+                          <span className="text-gray-500">
+                            {openFilter === "categories" ? "▲" : "▼"}
+                          </span>
                         </button>
 
                         {openFilter === "categories" && (
@@ -454,41 +540,63 @@ export default function InsightsPage() {
                               <div className="mb-2 border-b pb-1">
                                 <Checkbox
                                   id="select-all-categories"
-                                  checked={selectedCategories.length === categories.length}
+                                  checked={
+                                    selectedCategories.length ===
+                                    categories.length
+                                  }
                                   onCheckedChange={(checked) => {
                                     if (checked) {
-                                      setSelectedCategories(categories)
+                                      setSelectedCategories(categories);
                                     } else {
-                                      setSelectedCategories([])
+                                      setSelectedCategories([]);
                                     }
                                   }}
                                 />
-                                <label htmlFor="select-all-categories" className="ml-2 text-sm font-medium">
+                                <label
+                                  htmlFor="select-all-categories"
+                                  className="ml-2 text-sm font-medium"
+                                >
                                   Select All
                                 </label>
                               </div>
 
                               {categories.map((category) => {
                                 // In a real app, you would count items for each category
-                                const count = Math.floor(Math.random() * 20) + 1 // Dummy count
+                                const count =
+                                  Math.floor(Math.random() * 20) + 1; // Dummy count
                                 return (
-                                  <div key={`category-${category}`} className="flex items-center mb-1">
+                                  <div
+                                    key={`category-${category}`}
+                                    className="flex items-center mb-1"
+                                  >
                                     <Checkbox
                                       id={`category-${category}`}
-                                      checked={selectedCategories.includes(category)}
+                                      checked={selectedCategories.includes(
+                                        category
+                                      )}
                                       onCheckedChange={(checked) => {
                                         if (checked) {
-                                          setSelectedCategories([...selectedCategories, category])
+                                          setSelectedCategories([
+                                            ...selectedCategories,
+                                            category,
+                                          ]);
                                         } else {
-                                          setSelectedCategories(selectedCategories.filter((c) => c !== category))
+                                          setSelectedCategories(
+                                            selectedCategories.filter(
+                                              (c) => c !== category
+                                            )
+                                          );
                                         }
                                       }}
                                     />
-                                    <label htmlFor={`category-${category}`} className="ml-2 text-sm">
+                                    <label
+                                      htmlFor={`category-${category}`}
+                                      className="ml-2 text-sm"
+                                    >
                                       {category} ({count})
                                     </label>
                                   </div>
-                                )
+                                );
                               })}
                             </div>
                           </div>
@@ -498,11 +606,21 @@ export default function InsightsPage() {
                       {/* CN Codes filter */}
                       <div className="relative" ref={cnCodesFilterRef}>
                         <button
-                          onClick={() => setOpenFilter(openFilter === "cnCodes" ? null : "cnCodes")}
+                          onClick={() =>
+                            setOpenFilter(
+                              openFilter === "cnCodes" ? null : "cnCodes"
+                            )
+                          }
                           className="w-full flex items-center justify-between bg-white border rounded px-3 py-2 text-sm"
                         >
-                          <span>CN Codes {selectedCnCodes.length > 0 && `(${selectedCnCodes.length})`}</span>
-                          <span className="text-gray-500">{openFilter === "cnCodes" ? "▲" : "▼"}</span>
+                          <span>
+                            CN Codes{" "}
+                            {selectedCnCodes.length > 0 &&
+                              `(${selectedCnCodes.length})`}
+                          </span>
+                          <span className="text-gray-500">
+                            {openFilter === "cnCodes" ? "▲" : "▼"}
+                          </span>
                         </button>
 
                         {openFilter === "cnCodes" && (
@@ -511,41 +629,61 @@ export default function InsightsPage() {
                               <div className="mb-2 border-b pb-1">
                                 <Checkbox
                                   id="select-all-cncodes"
-                                  checked={selectedCnCodes.length === cnCodes.length}
+                                  checked={
+                                    selectedCnCodes.length === cnCodes.length
+                                  }
                                   onCheckedChange={(checked) => {
                                     if (checked) {
-                                      setSelectedCnCodes(cnCodes)
+                                      setSelectedCnCodes(cnCodes);
                                     } else {
-                                      setSelectedCnCodes([])
+                                      setSelectedCnCodes([]);
                                     }
                                   }}
                                 />
-                                <label htmlFor="select-all-cncodes" className="ml-2 text-sm font-medium">
+                                <label
+                                  htmlFor="select-all-cncodes"
+                                  className="ml-2 text-sm font-medium"
+                                >
                                   Select All
                                 </label>
                               </div>
 
                               {cnCodes.map((cnCode) => {
                                 // Count items with this CN code
-                                const count = goodsImports.filter((g) => g.cnCode === cnCode).length
+                                const count = goodsImports.filter(
+                                  (g) => g.cnCode === cnCode
+                                ).length;
                                 return (
-                                  <div key={`cncode-${cnCode}`} className="flex items-center mb-1">
+                                  <div
+                                    key={`cncode-${cnCode}`}
+                                    className="flex items-center mb-1"
+                                  >
                                     <Checkbox
                                       id={`cncode-${cnCode}`}
                                       checked={selectedCnCodes.includes(cnCode)}
                                       onCheckedChange={(checked) => {
                                         if (checked) {
-                                          setSelectedCnCodes([...selectedCnCodes, cnCode])
+                                          setSelectedCnCodes([
+                                            ...selectedCnCodes,
+                                            cnCode,
+                                          ]);
                                         } else {
-                                          setSelectedCnCodes(selectedCnCodes.filter((c) => c !== cnCode))
+                                          setSelectedCnCodes(
+                                            selectedCnCodes.filter(
+                                              (c) => c !== cnCode
+                                            )
+                                          );
                                         }
                                       }}
                                     />
-                                    <label htmlFor={`cncode-${cnCode}`} className="ml-2 text-sm">
+                                    <label
+                                      htmlFor={`cncode-${cnCode}`}
+                                      className="ml-2 text-sm"
+                                    >
                                       {cnCode} ({count})
                                     </label>
                                   </div>
-                                )
+                                );
                               })}
                             </div>
                           </div>
@@ -555,11 +693,21 @@ export default function InsightsPage() {
                       {/* Countries filter */}
                       <div className="relative" ref={countriesFilterRef}>
                         <button
-                          onClick={() => setOpenFilter(openFilter === "countries" ? null : "countries")}
+                          onClick={() =>
+                            setOpenFilter(
+                              openFilter === "countries" ? null : "countries"
+                            )
+                          }
                           className="w-full flex items-center justify-between bg-white border rounded px-3 py-2 text-sm"
                         >
-                          <span>Countries {selectedCountries.length > 0 && `(${selectedCountries.length})`}</span>
-                          <span className="text-gray-500">{openFilter === "countries" ? "▲" : "▼"}</span>
+                          <span>
+                            Countries{" "}
+                            {selectedCountries.length > 0 &&
+                              `(${selectedCountries.length})`}
+                          </span>
+                          <span className="text-gray-500">
+                            {openFilter === "countries" ? "▲" : "▼"}
+                          </span>
                         </button>
 
                         {openFilter === "countries" && (
@@ -568,41 +716,63 @@ export default function InsightsPage() {
                               <div className="mb-2 border-b pb-1">
                                 <Checkbox
                                   id="select-all-countries"
-                                  checked={selectedCountries.length === countries.length}
+                                  checked={
+                                    selectedCountries.length ===
+                                    countries.length
+                                  }
                                   onCheckedChange={(checked) => {
                                     if (checked) {
-                                      setSelectedCountries(countries)
+                                      setSelectedCountries(countries);
                                     } else {
-                                      setSelectedCountries([])
+                                      setSelectedCountries([]);
                                     }
                                   }}
                                 />
-                                <label htmlFor="select-all-countries" className="ml-2 text-sm font-medium">
+                                <label
+                                  htmlFor="select-all-countries"
+                                  className="ml-2 text-sm font-medium"
+                                >
                                   Select All
                                 </label>
                               </div>
 
                               {countries.map((country) => {
                                 // In a real app, you would count items for each country
-                                const count = Math.floor(Math.random() * 15) + 1 // Dummy count
+                                const count =
+                                  Math.floor(Math.random() * 15) + 1; // Dummy count
                                 return (
-                                  <div key={`country-${country}`} className="flex items-center mb-1">
+                                  <div
+                                    key={`country-${country}`}
+                                    className="flex items-center mb-1"
+                                  >
                                     <Checkbox
                                       id={`country-${country}`}
-                                      checked={selectedCountries.includes(country)}
+                                      checked={selectedCountries.includes(
+                                        country
+                                      )}
                                       onCheckedChange={(checked) => {
                                         if (checked) {
-                                          setSelectedCountries([...selectedCountries, country])
+                                          setSelectedCountries([
+                                            ...selectedCountries,
+                                            country,
+                                          ]);
                                         } else {
-                                          setSelectedCountries(selectedCountries.filter((c) => c !== country))
+                                          setSelectedCountries(
+                                            selectedCountries.filter(
+                                              (c) => c !== country
+                                            )
+                                          );
                                         }
                                       }}
                                     />
-                                    <label htmlFor={`country-${country}`} className="ml-2 text-sm">
+                                    <label
+                                      htmlFor={`country-${country}`}
+                                      className="ml-2 text-sm"
+                                    >
                                       {country} ({count})
                                     </label>
                                   </div>
-                                )
+                                );
                               })}
                             </div>
                           </div>
@@ -612,11 +782,21 @@ export default function InsightsPage() {
                       {/* Suppliers filter */}
                       <div className="relative" ref={suppliersFilterRef}>
                         <button
-                          onClick={() => setOpenFilter(openFilter === "suppliers" ? null : "suppliers")}
+                          onClick={() =>
+                            setOpenFilter(
+                              openFilter === "suppliers" ? null : "suppliers"
+                            )
+                          }
                           className="w-full flex items-center justify-between bg-white border rounded px-3 py-2 text-sm"
                         >
-                          <span>Suppliers {selectedSuppliers.length > 0 && `(${selectedSuppliers.length})`}</span>
-                          <span className="text-gray-500">{openFilter === "suppliers" ? "▲" : "▼"}</span>
+                          <span>
+                            Suppliers{" "}
+                            {selectedSuppliers.length > 0 &&
+                              `(${selectedSuppliers.length})`}
+                          </span>
+                          <span className="text-gray-500">
+                            {openFilter === "suppliers" ? "▲" : "▼"}
+                          </span>
                         </button>
 
                         {openFilter === "suppliers" && (
@@ -625,41 +805,64 @@ export default function InsightsPage() {
                               <div className="mb-2 border-b pb-1">
                                 <Checkbox
                                   id="select-all-suppliers"
-                                  checked={selectedSuppliers.length === suppliers.length}
+                                  checked={
+                                    selectedSuppliers.length ===
+                                    suppliers.length
+                                  }
                                   onCheckedChange={(checked) => {
                                     if (checked) {
-                                      setSelectedSuppliers(suppliers)
+                                      setSelectedSuppliers(suppliers);
                                     } else {
-                                      setSelectedSuppliers([])
+                                      setSelectedSuppliers([]);
                                     }
                                   }}
                                 />
-                                <label htmlFor="select-all-suppliers" className="ml-2 text-sm font-medium">
+                                <label
+                                  htmlFor="select-all-suppliers"
+                                  className="ml-2 text-sm font-medium"
+                                >
                                   Select All
                                 </label>
                               </div>
 
                               {suppliers.map((supplier) => {
                                 // Count items from this supplier
-                                const count = goodsImports.filter((g) => g.manufacturer === supplier).length
+                                const count = goodsImports.filter(
+                                  (g) => g.manufacturer === supplier
+                                ).length;
                                 return (
-                                  <div key={`supplier-${supplier}`} className="flex items-center mb-1">
+                                  <div
+                                    key={`supplier-${supplier}`}
+                                    className="flex items-center mb-1"
+                                  >
                                     <Checkbox
                                       id={`supplier-${supplier}`}
-                                      checked={selectedSuppliers.includes(supplier)}
+                                      checked={selectedSuppliers.includes(
+                                        supplier
+                                      )}
                                       onCheckedChange={(checked) => {
                                         if (checked) {
-                                          setSelectedSuppliers([...selectedSuppliers, supplier])
+                                          setSelectedSuppliers([
+                                            ...selectedSuppliers,
+                                            supplier,
+                                          ]);
                                         } else {
-                                          setSelectedSuppliers(selectedSuppliers.filter((s) => s !== supplier))
+                                          setSelectedSuppliers(
+                                            selectedSuppliers.filter(
+                                              (s) => s !== supplier
+                                            )
+                                          );
                                         }
                                       }}
                                     />
-                                    <label htmlFor={`supplier-${supplier}`} className="ml-2 text-sm">
+                                    <label
+                                      htmlFor={`supplier-${supplier}`}
+                                      className="ml-2 text-sm"
+                                    >
                                       {supplier} ({count})
                                     </label>
                                   </div>
-                                )
+                                );
                               })}
                             </div>
                           </div>
@@ -695,8 +898,8 @@ export default function InsightsPage() {
                   viewMode={viewMode}
                   showFilters={false} // We're handling filters in the UI now
                   hideControls={true}
-                  limitData={limitData}
-                  maxItems={limitData ? 10 : undefined}
+                  //limitData={limitData}
+                  //maxItems={limitData ? 10 : undefined}
                 />
               </TabsContent>
             ) : (
@@ -706,5 +909,5 @@ export default function InsightsPage() {
         </Card>
       </Tabs>
     </div>
-  )
+  );
 }

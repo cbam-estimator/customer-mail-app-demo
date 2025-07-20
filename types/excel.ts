@@ -1,3 +1,6 @@
+import { Address } from "cluster"
+import { Supplier } from "./supplier"
+
 export interface GoodsImportRow {
   id: number
   remarks: string
@@ -12,12 +15,20 @@ export interface GoodsImportRow {
   importFile?: string
   seeDirect: number // New property for SEE direct value
   seeIndirect: number // New property for SEE indirect value
+  supplierId:number
 }
 
-export interface Supplier {
-  id: number
-  name: string
-}
+// export interface Supplier {
+//   id: number
+//   name: string
+//   streetNumber:string;
+//   street:string;
+//   additionalLine:string;
+//   postcode:string;
+//   country:string;
+//   city:string;
+//   email:string;
+// }
 
 export interface ImportPreviewData {
   suppliers: Supplier[]
@@ -36,4 +47,5 @@ export interface ImportedFile {
   selected?: boolean
   supplierIds: number[]
   goodsEntryIndices: number[]
+  period:string;
 }

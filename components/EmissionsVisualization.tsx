@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,27 +10,49 @@ import {
   Tooltip,
   Legend,
   type ChartOptions,
-} from "chart.js"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Filter, ChevronDown, ChevronUp, Search, Plus, Minus, X, Info } from "lucide-react"
-import type { GoodsImportRow } from "@/types/excel"
-import { cn } from "@/lib/utils"
-import ChartDataLabels from "chartjs-plugin-datalabels"
-import { Bar } from "react-chartjs-2"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+} from "chart.js";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Plus,
+  Minus,
+  X,
+  Info,
+} from "lucide-react";
+import type { GoodsImportRow } from "@/types/excel";
+import { cn } from "@/lib/utils";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Bar } from "react-chartjs-2";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Register ChartJS components and plugins
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartDataLabels
+);
 
 type EmissionsVisualizationProps = {
-  goodsImports: GoodsImportRow[]
-  viewMode?: "quarters" | "suppliers" | "cnCodes"
-  showFilters?: boolean
-  hideControls?: boolean
-}
+  goodsImports: GoodsImportRow[];
+  viewMode?: "quarters" | "suppliers" | "cnCodes";
+  showFilters?: boolean;
+  hideControls?: boolean;
+};
 
 export function EmissionsVisualization({
   goodsImports,
@@ -39,47 +61,58 @@ export function EmissionsVisualization({
   hideControls = false,
 }: EmissionsVisualizationProps) {
   // Use external state if provided, otherwise use internal state
-  const [internalViewMode, setInternalViewMode] = useState<"quarters" | "suppliers" | "cnCodes">("quarters")
-  const [internalShowFilters, setInternalShowFilters] = useState(false)
+  const [internalViewMode, setInternalViewMode] = useState<
+    "quarters" | "suppliers" | "cnCodes"
+  >("quarters");
+  const [internalShowFilters, setInternalShowFilters] = useState(false);
 
-  const viewMode = externalViewMode !== undefined ? externalViewMode : internalViewMode
-  const showFilters = externalShowFilters !== undefined ? externalShowFilters : internalShowFilters
+  const viewMode =
+    externalViewMode !== undefined ? externalViewMode : internalViewMode;
+  const showFilters =
+    externalShowFilters !== undefined
+      ? externalShowFilters
+      : internalShowFilters;
   const [chartData, setChartData] = useState<any>({
     labels: [],
     datasets: [],
-  })
-  const [uniqueSuppliers, setUniqueSuppliers] = useState<string[]>([])
-  const [uniqueQuarters, setUniqueQuarters] = useState<string[]>([])
-  const [uniqueCnCodes, setUniqueCnCodes] = useState<string[]>([])
-  const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
-  const [uniqueGoodCategories, setUniqueGoodCategories] = useState<string[]>([])
-  const [isDataReady, setIsDataReady] = useState(false)
+  });
+  const [uniqueSuppliers, setUniqueSuppliers] = useState<string[]>([]);
+  const [uniqueQuarters, setUniqueQuarters] = useState<string[]>([]);
+  const [uniqueCnCodes, setUniqueCnCodes] = useState<string[]>([]);
+  const [uniqueCountries, setUniqueCountries] = useState<string[]>([]);
+  const [uniqueGoodCategories, setUniqueGoodCategories] = useState<string[]>(
+    []
+  );
+  const [isDataReady, setIsDataReady] = useState(false);
 
   // Filter states
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([])
-  const [selectedQuarters, setSelectedQuarters] = useState<string[]>([])
-  const [selectedCnCodes, setSelectedCnCodes] = useState<string[]>([])
-  const [selectedCountries, setSelectedCountries] = useState<string[]>([])
-  const [selectedGoodCategories, setSelectedGoodCategories] = useState<string[]>([])
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
+  const [selectedQuarters, setSelectedQuarters] = useState<string[]>([]);
+  const [selectedCnCodes, setSelectedCnCodes] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedGoodCategories, setSelectedGoodCategories] = useState<
+    string[]
+  >([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Search states
-  const [supplierSearch, setSupplierSearch] = useState("")
-  const [cnCodeSearch, setCnCodeSearch] = useState("")
-  const [countrySearch, setCountrySearch] = useState("")
-  const [categorySearch, setCategorySearch] = useState("")
+  const [supplierSearch, setSupplierSearch] = useState("");
+  const [cnCodeSearch, setCnCodeSearch] = useState("");
+  const [countrySearch, setCountrySearch] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
 
   // Extract good category from CN code description
   const extractGoodCategory = (cnCode: string): string => {
     // This is a simplified example - in a real app, you would have a mapping
     // of CN codes to categories or extract it from the description
-    if (cnCode.startsWith("72") || cnCode.startsWith("73")) return "Iron and Steel"
-    if (cnCode.startsWith("76")) return "Aluminum"
-    if (cnCode.startsWith("25")) return "Cement"
-    if (cnCode.startsWith("31")) return "Fertilizers"
-    if (cnCode.startsWith("28")) return "Chemicals"
-    return "Other"
-  }
+    if (cnCode.startsWith("72") || cnCode.startsWith("73"))
+      return "Iron and Steel";
+    if (cnCode.startsWith("76")) return "Aluminum";
+    if (cnCode.startsWith("25")) return "Cement";
+    if (cnCode.startsWith("31")) return "Fertilizers";
+    if (cnCode.startsWith("28")) return "Chemicals";
+    return "Other";
+  };
 
   // Calculate filter counts - how many items would remain if a filter is applied
   const calculateFilterCounts = useMemo(() => {
@@ -90,81 +123,113 @@ export function EmissionsVisualization({
         cnCodes: {},
         countries: {},
         goodCategories: {},
-      }
+      };
     }
 
     // Apply current filters except the one we're calculating for
-    const getFilteredData = (excludeFilter: "suppliers" | "quarters" | "cnCodes" | "countries" | "goodCategories") => {
+    const getFilteredData = (
+      excludeFilter:
+        | "suppliers"
+        | "quarters"
+        | "cnCodes"
+        | "countries"
+        | "goodCategories"
+    ) => {
       return goodsImports.filter((item) => {
         const supplierMatch =
-          excludeFilter === "suppliers" ? true : selectedSuppliers.includes(item.manufacturer || "Unknown")
-        const quarterMatch = excludeFilter === "quarters" ? true : selectedQuarters.includes(item.quarter || "Unknown")
-        const cnCodeMatch = excludeFilter === "cnCodes" ? true : selectedCnCodes.includes(item.cnCode || "Unknown")
+          excludeFilter === "suppliers"
+            ? true
+            : selectedSuppliers.includes(item.manufacturer || "Unknown");
+        const quarterMatch =
+          excludeFilter === "quarters"
+            ? true
+            : selectedQuarters.includes(item.quarter || "Unknown");
+        const cnCodeMatch =
+          excludeFilter === "cnCodes"
+            ? true
+            : selectedCnCodes.includes(item.cnCode || "Unknown");
 
         // Extract country from manufacturer (simplified example)
         const country = item.manufacturer?.includes("China")
           ? "China"
           : item.manufacturer?.includes("Turkey")
-            ? "Turkey"
-            : "Other"
-        const countryMatch = excludeFilter === "countries" ? true : selectedCountries.includes(country)
+          ? "Turkey"
+          : "Other";
+        const countryMatch =
+          excludeFilter === "countries"
+            ? true
+            : selectedCountries.includes(country);
 
         // Extract good category
-        const goodCategory = extractGoodCategory(item.cnCode || "")
+        const goodCategory = extractGoodCategory(item.cnCode || "");
         const goodCategoryMatch =
-          excludeFilter === "goodCategories" ? true : selectedGoodCategories.includes(goodCategory)
+          excludeFilter === "goodCategories"
+            ? true
+            : selectedGoodCategories.includes(goodCategory);
 
-        return supplierMatch && quarterMatch && cnCodeMatch && countryMatch && goodCategoryMatch
-      })
-    }
+        return (
+          supplierMatch &&
+          quarterMatch &&
+          cnCodeMatch &&
+          countryMatch &&
+          goodCategoryMatch
+        );
+      });
+    };
 
     // Calculate counts for each filter type
-    const supplierCounts: Record<string, number> = {}
-    const quarterCounts: Record<string, number> = {}
-    const cnCodeCounts: Record<string, number> = {}
-    const countryCounts: Record<string, number> = {}
-    const goodCategoryCounts: Record<string, number> = {}
+    const supplierCounts: Record<string, number> = {};
+    const quarterCounts: Record<string, number> = {};
+    const cnCodeCounts: Record<string, number> = {};
+    const countryCounts: Record<string, number> = {};
+    const goodCategoryCounts: Record<string, number> = {};
 
     // For suppliers
     uniqueSuppliers.forEach((supplier) => {
-      const filteredData = getFilteredData("suppliers")
-      supplierCounts[supplier] = filteredData.filter((item) => (item.manufacturer || "Unknown") === supplier).length
-    })
+      const filteredData = getFilteredData("suppliers");
+      supplierCounts[supplier] = filteredData.filter(
+        (item) => (item.manufacturer || "Unknown") === supplier
+      ).length;
+    });
 
     // For quarters
     uniqueQuarters.forEach((quarter) => {
-      const filteredData = getFilteredData("quarters")
-      quarterCounts[quarter] = filteredData.filter((item) => (item.quarter || "Unknown") === quarter).length
-    })
+      const filteredData = getFilteredData("quarters");
+      quarterCounts[quarter] = filteredData.filter(
+        (item) => (item.quarter || "Unknown") === quarter
+      ).length;
+    });
 
     // For CN codes
     uniqueCnCodes.forEach((cnCode) => {
-      const filteredData = getFilteredData("cnCodes")
-      cnCodeCounts[cnCode] = filteredData.filter((item) => (item.cnCode || "Unknown") === cnCode).length
-    })
+      const filteredData = getFilteredData("cnCodes");
+      cnCodeCounts[cnCode] = filteredData.filter(
+        (item) => (item.cnCode || "Unknown") === cnCode
+      ).length;
+    });
 
     // For countries
     uniqueCountries.forEach((country) => {
-      const filteredData = getFilteredData("countries")
+      const filteredData = getFilteredData("countries");
       // Simplified country matching
       countryCounts[country] = filteredData.filter((item) => {
         const itemCountry = item.manufacturer?.includes("China")
           ? "China"
           : item.manufacturer?.includes("Turkey")
-            ? "Turkey"
-            : "Other"
-        return itemCountry === country
-      }).length
-    })
+          ? "Turkey"
+          : "Other";
+        return itemCountry === country;
+      }).length;
+    });
 
     // For good categories
     uniqueGoodCategories.forEach((category) => {
-      const filteredData = getFilteredData("goodCategories")
+      const filteredData = getFilteredData("goodCategories");
       goodCategoryCounts[category] = filteredData.filter((item) => {
-        const goodCategory = extractGoodCategory(item.cnCode || "")
-        return goodCategory === category
-      }).length
-    })
+        const goodCategory = extractGoodCategory(item.cnCode || "");
+        return goodCategory === category;
+      }).length;
+    });
 
     return {
       suppliers: supplierCounts,
@@ -172,7 +237,7 @@ export function EmissionsVisualization({
       cnCodes: cnCodeCounts,
       countries: countryCounts,
       goodCategories: goodCategoryCounts,
-    }
+    };
   }, [
     goodsImports,
     selectedSuppliers,
@@ -185,63 +250,71 @@ export function EmissionsVisualization({
     uniqueCnCodes,
     uniqueCountries,
     uniqueGoodCategories,
-  ])
+  ]);
 
   useEffect(() => {
     // Reset data ready state when inputs change
-    setIsDataReady(false)
+    setIsDataReady(false);
 
     if (!goodsImports || goodsImports.length === 0) {
-      setUniqueSuppliers([])
-      setUniqueQuarters([])
-      setUniqueCnCodes([])
-      setUniqueCountries([])
-      setUniqueGoodCategories([])
-      setSelectedSuppliers([])
-      setSelectedQuarters([])
-      setSelectedCnCodes([])
-      setSelectedCountries([])
-      setSelectedGoodCategories([])
-      return
+      setUniqueSuppliers([]);
+      setUniqueQuarters([]);
+      setUniqueCnCodes([]);
+      setUniqueCountries([]);
+      setUniqueGoodCategories([]);
+      setSelectedSuppliers([]);
+      setSelectedQuarters([]);
+      setSelectedCnCodes([]);
+      setSelectedCountries([]);
+      setSelectedGoodCategories([]);
+      return;
     }
 
     // Extract unique suppliers, quarters, and CN codes
-    const suppliers = Array.from(new Set(goodsImports.map((item) => item.manufacturer || "Unknown")))
-    const quarters = Array.from(new Set(goodsImports.map((item) => item.quarter || "Unknown"))).sort((a, b) => {
+    const suppliers = Array.from(
+      new Set(goodsImports.map((item) => item.manufacturer || "Unknown"))
+    );
+    const quarters = Array.from(
+      new Set(goodsImports.map((item) => item.quarter || "Unknown"))
+    ).sort((a, b) => {
       // Sort quarters chronologically in descending order (most recent first)
-      if (a === "Unknown") return 1
-      if (b === "Unknown") return -1
+      if (a === "Unknown") return 1;
+      if (b === "Unknown") return -1;
 
-      const [aQ, aY] = a.split("-")
-      const [bQ, bY] = b.split("-")
+      const [aQ, aY] = a.split("-");
+      const [bQ, bY] = b.split("-");
       // Reverse the comparison for descending order
       return aY === bY
         ? bQ.localeCompare(aQ) // Reverse quarter comparison
-        : bY.localeCompare(aY) // Reverse year comparison
-    })
-    const cnCodes = Array.from(new Set(goodsImports.map((item) => item.cnCode || "Unknown")))
+        : bY.localeCompare(aY); // Reverse year comparison
+    });
+    const cnCodes = Array.from(
+      new Set(goodsImports.map((item) => item.cnCode || "Unknown"))
+    );
 
     // Extract countries (simplified example)
-    const countries = ["China", "Turkey", "Other"] // In a real app, extract from data
+    const countries = ["China", "Turkey", "Other"]; // In a real app, extract from data
 
     // Extract good categories
-    const goodCategories = Array.from(new Set(cnCodes.map((code) => extractGoodCategory(code))))
+    const goodCategories = Array.from(
+      new Set(cnCodes.map((code) => extractGoodCategory(code)))
+    );
 
-    setUniqueSuppliers(suppliers)
-    setUniqueQuarters(quarters)
-    setUniqueCnCodes(cnCodes)
-    setUniqueCountries(countries)
-    setUniqueGoodCategories(goodCategories)
-  }, [goodsImports])
+    setUniqueSuppliers(suppliers);
+    setUniqueQuarters(quarters);
+    setUniqueCnCodes(cnCodes);
+    setUniqueCountries(countries);
+    setUniqueGoodCategories(goodCategories);
+  }, [goodsImports]);
 
   useEffect(() => {
     if (!goodsImports || goodsImports.length === 0) {
       setChartData({
         labels: [],
         datasets: [],
-      })
-      setIsDataReady(false)
-      return
+      });
+      setIsDataReady(false);
+      return;
     }
 
     try {
@@ -249,106 +322,148 @@ export function EmissionsVisualization({
       const filteredData = goodsImports.filter((item) => {
         // If all suppliers are deselected, don't filter by supplier
         const supplierMatch =
-          selectedSuppliers.length === 0 || selectedSuppliers.includes(item.manufacturer || "Unknown")
+          selectedSuppliers.length === 0 ||
+          selectedSuppliers.includes(item.manufacturer || "Unknown");
 
         // If all quarters are deselected, don't filter by quarter
-        const quarterMatch = selectedQuarters.length === 0 || selectedQuarters.includes(item.quarter || "Unknown")
+        const quarterMatch =
+          selectedQuarters.length === 0 ||
+          selectedQuarters.includes(item.quarter || "Unknown");
 
         // If all CN codes are deselected, don't filter by CN code
-        const cnCodeMatch = selectedCnCodes.length === 0 || selectedCnCodes.includes(item.cnCode || "Unknown")
+        const cnCodeMatch =
+          selectedCnCodes.length === 0 ||
+          selectedCnCodes.includes(item.cnCode || "Unknown");
 
         // Extract country from manufacturer (simplified example)
         const country = item.manufacturer?.includes("China")
           ? "China"
           : item.manufacturer?.includes("Turkey")
-            ? "Turkey"
-            : "Other"
+          ? "Turkey"
+          : "Other";
 
         // If all countries are deselected, don't filter by country
-        const countryMatch = selectedCountries.length === 0 || selectedCountries.includes(country)
+        const countryMatch =
+          selectedCountries.length === 0 || selectedCountries.includes(country);
 
         // Extract good category
-        const goodCategory = extractGoodCategory(item.cnCode || "")
+        const goodCategory = extractGoodCategory(item.cnCode || "");
 
         // If all good categories are deselected, don't filter by good category
-        const goodCategoryMatch = selectedGoodCategories.length === 0 || selectedGoodCategories.includes(goodCategory)
+        const goodCategoryMatch =
+          selectedGoodCategories.length === 0 ||
+          selectedGoodCategories.includes(goodCategory);
 
-        return supplierMatch && quarterMatch && cnCodeMatch && countryMatch && goodCategoryMatch
-      })
+        return (
+          supplierMatch &&
+          quarterMatch &&
+          cnCodeMatch &&
+          countryMatch &&
+          goodCategoryMatch
+        );
+      });
 
       // Create detailed data for the raw data table
-      let detailedData: any[] = []
-      let labels: string[] = []
-      let datasets: any[] = []
+      let detailedData: any[] = [];
+      let labels: string[] = [];
+      let datasets: any[] = [];
 
       if (viewMode === "quarters") {
         // Use quarters that have data after filtering
         const activeQuarters = uniqueQuarters.filter((quarter) =>
-          filteredData.some((item) => (item.quarter || "Unknown") === quarter),
-        )
+          filteredData.some((item) => (item.quarter || "Unknown") === quarter)
+        );
 
-        labels = activeQuarters
+        labels = activeQuarters;
 
         if (activeQuarters.length === 0) {
           setChartData({
             labels: [],
             datasets: [],
-          })
-          setIsDataReady(false)
-          return
+          });
+          setIsDataReady(false);
+          return;
         }
 
         // Calculate direct and indirect emissions separately
         const quarterDirectEmissions = activeQuarters.map((quarter) => {
-          const quarterItems = filteredData.filter((item) => (item.quarter || "Unknown") === quarter)
+          const quarterItems = filteredData.filter(
+            (item) => (item.quarter || "Unknown") === quarter
+          );
           const directEmissions = quarterItems.reduce((sum, item) => {
-            return sum + (item.seeDirect || 0) * (item.quantity || 0)
-          }, 0)
-          return Math.round(directEmissions)
-        })
+            return sum + (item.seeDirect || 0) * (item.quantity || 0);
+          }, 0);
+          return Math.round(directEmissions);
+        });
 
         const quarterIndirectEmissions = activeQuarters.map((quarter) => {
-          const quarterItems = filteredData.filter((item) => (item.quarter || "Unknown") === quarter)
+          const quarterItems = filteredData.filter(
+            (item) => (item.quarter || "Unknown") === quarter
+          );
           const indirectEmissions = quarterItems.reduce((sum, item) => {
-            return sum + (item.seeIndirect || 0) * (item.quantity || 0)
-          }, 0)
-          return Math.round(indirectEmissions)
-        })
+            return sum + (item.seeIndirect || 0) * (item.quantity || 0);
+          }, 0);
+          return Math.round(indirectEmissions);
+        });
 
         const quarterImports = activeQuarters.map((quarter) => {
-          const quarterItems = filteredData.filter((item) => (item.quarter || "Unknown") === quarter)
-          return quarterItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
-        })
+          const quarterItems = filteredData.filter(
+            (item) => (item.quarter || "Unknown") === quarter
+          );
+          return quarterItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
+        });
 
         // Create detailed data for each quarter
         detailedData = activeQuarters.map((quarter, index) => {
-          const quarterItems = filteredData.filter((item) => (item.quarter || "Unknown") === quarter)
-          const uniqueSupplierCount = new Set(quarterItems.map((item) => item.manufacturer)).size
-          const uniqueGoodsCount = new Set(quarterItems.map((item) => item.cnCode)).size
-          const importQuantity = quarterItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+          const quarterItems = filteredData.filter(
+            (item) => (item.quarter || "Unknown") === quarter
+          );
+          const uniqueSupplierCount = new Set(
+            quarterItems.map((item) => item.manufacturer)
+          ).size;
+          const uniqueGoodsCount = new Set(
+            quarterItems.map((item) => item.cnCode)
+          ).size;
+          const importQuantity = quarterItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
 
           // Calculate average SEE values
-          let avgSeeDirect = 0
-          let avgSeeIndirect = 0
+          let avgSeeDirect = 0;
+          let avgSeeIndirect = 0;
 
           if (quarterItems.length > 0) {
             // Calculate weighted average SEE values
-            const totalWeight = quarterItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+            const totalWeight = quarterItems.reduce(
+              (sum, item) => sum + (item.quantity || 0),
+              0
+            );
 
             if (totalWeight > 0) {
               avgSeeDirect =
-                quarterItems.reduce((sum, item) => sum + (item.seeDirect || 0) * (item.quantity || 0), 0) / totalWeight
+                quarterItems.reduce(
+                  (sum, item) =>
+                    sum + (item.seeDirect || 0) * (item.quantity || 0),
+                  0
+                ) / totalWeight;
 
               avgSeeIndirect =
-                quarterItems.reduce((sum, item) => sum + (item.seeIndirect || 0) * (item.quantity || 0), 0) /
-                totalWeight
+                quarterItems.reduce(
+                  (sum, item) =>
+                    sum + (item.seeIndirect || 0) * (item.quantity || 0),
+                  0
+                ) / totalWeight;
             }
           }
 
-          const avgSeeTotal = avgSeeDirect + avgSeeIndirect
+          const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity // Already in tCO2
+          const totalEmissions = avgSeeTotal * importQuantity; // Already in tCO2
 
           return {
             label: quarter,
@@ -359,8 +474,8 @@ export function EmissionsVisualization({
             avgSeeIndirect: Math.round(avgSeeIndirect * 100) / 100, // Round to 2 decimal places
             avgSeeTotal: Math.round(avgSeeTotal * 100) / 100, // Round to 2 decimal places
             totalEmissions: Math.round(totalEmissions * 100) / 100, // Round to 2 decimal places
-          }
-        })
+          };
+        });
 
         datasets = [
           {
@@ -389,97 +504,131 @@ export function EmissionsVisualization({
             borderWidth: 0, // Remove border
             yAxisID: "y1", // Secondary axis (right)
           },
-        ]
+        ];
       } else if (viewMode === "suppliers") {
         // Use suppliers that have data after filtering
         let activeSuppliers = uniqueSuppliers.filter((supplier) =>
-          filteredData.some((item) => (item.manufacturer || "Unknown") === supplier),
-        )
+          filteredData.some(
+            (item) => (item.manufacturer || "Unknown") === supplier
+          )
+        );
 
         // Calculate emissions for each supplier for sorting
-        const supplierEmissions = new Map<string, number>()
+        const supplierEmissions = new Map<string, number>();
         activeSuppliers.forEach((supplier) => {
-          const supplierItems = filteredData.filter((item) => (item.manufacturer || "Unknown") === supplier)
+          const supplierItems = filteredData.filter(
+            (item) => (item.manufacturer || "Unknown") === supplier
+          );
           const totalEmissions = supplierItems.reduce((sum, item) => {
-            const directEmissions = (item.seeDirect || 0) * (item.quantity || 0)
-            const indirectEmissions = (item.seeIndirect || 0) * (item.quantity || 0)
-            return sum + directEmissions + indirectEmissions
-          }, 0)
-          supplierEmissions.set(supplier, totalEmissions)
-        })
+            const directEmissions =
+              (item.seeDirect || 0) * (item.quantity || 0);
+            const indirectEmissions =
+              (item.seeIndirect || 0) * (item.quantity || 0);
+            return sum + directEmissions + indirectEmissions;
+          }, 0);
+          supplierEmissions.set(supplier, totalEmissions);
+        });
 
         // Sort suppliers by emissions (highest first)
         activeSuppliers = activeSuppliers.sort((a, b) => {
-          const emissionsA = supplierEmissions.get(a) || 0
-          const emissionsB = supplierEmissions.get(b) || 0
-          return emissionsB - emissionsA // Descending order
-        })
+          const emissionsA = supplierEmissions.get(a) || 0;
+          const emissionsB = supplierEmissions.get(b) || 0;
+          return emissionsB - emissionsA; // Descending order
+        });
 
         // Limit to top 10 suppliers
-        const top10Suppliers = activeSuppliers.slice(0, 10)
+        const top10Suppliers = activeSuppliers.slice(0, 10);
 
-        labels = top10Suppliers
+        labels = top10Suppliers;
 
         if (top10Suppliers.length === 0) {
           setChartData({
             labels: [],
             datasets: [],
-          })
-          setIsDataReady(false)
-          return
+          });
+          setIsDataReady(false);
+          return;
         }
 
         // Calculate direct and indirect emissions separately
         const supplierDirectEmissions = top10Suppliers.map((supplier) => {
-          const supplierItems = filteredData.filter((item) => (item.manufacturer || "Unknown") === supplier)
+          const supplierItems = filteredData.filter(
+            (item) => (item.manufacturer || "Unknown") === supplier
+          );
           const directEmissions = supplierItems.reduce((sum, item) => {
-            return sum + (item.seeDirect || 0) * (item.quantity || 0)
-          }, 0)
-          return Math.round(directEmissions)
-        })
+            return sum + (item.seeDirect || 0) * (item.quantity || 0);
+          }, 0);
+          return Math.round(directEmissions);
+        });
 
         const supplierIndirectEmissions = top10Suppliers.map((supplier) => {
-          const supplierItems = filteredData.filter((item) => (item.manufacturer || "Unknown") === supplier)
+          const supplierItems = filteredData.filter(
+            (item) => (item.manufacturer || "Unknown") === supplier
+          );
           const indirectEmissions = supplierItems.reduce((sum, item) => {
-            return sum + (item.seeIndirect || 0) * (item.quantity || 0)
-          }, 0)
-          return Math.round(indirectEmissions)
-        })
+            return sum + (item.seeIndirect || 0) * (item.quantity || 0);
+          }, 0);
+          return Math.round(indirectEmissions);
+        });
 
         const supplierImports = top10Suppliers.map((supplier) => {
-          const supplierItems = filteredData.filter((item) => (item.manufacturer || "Unknown") === supplier)
-          return supplierItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
-        })
+          const supplierItems = filteredData.filter(
+            (item) => (item.manufacturer || "Unknown") === supplier
+          );
+          return supplierItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
+        });
 
         // Create detailed data for each supplier
         detailedData = top10Suppliers.map((supplier, index) => {
-          const supplierItems = filteredData.filter((item) => (item.manufacturer || "Unknown") === supplier)
-          const uniqueQuarterCount = new Set(supplierItems.map((item) => item.quarter)).size
-          const uniqueGoodsCount = new Set(supplierItems.map((item) => item.cnCode)).size
-          const importQuantity = supplierItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+          const supplierItems = filteredData.filter(
+            (item) => (item.manufacturer || "Unknown") === supplier
+          );
+          const uniqueQuarterCount = new Set(
+            supplierItems.map((item) => item.quarter)
+          ).size;
+          const uniqueGoodsCount = new Set(
+            supplierItems.map((item) => item.cnCode)
+          ).size;
+          const importQuantity = supplierItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
 
           // Calculate average SEE values
-          let avgSeeDirect = 0
-          let avgSeeIndirect = 0
+          let avgSeeDirect = 0;
+          let avgSeeIndirect = 0;
 
           if (supplierItems.length > 0) {
             // Calculate weighted average SEE values
-            const totalWeight = supplierItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+            const totalWeight = supplierItems.reduce(
+              (sum, item) => sum + (item.quantity || 0),
+              0
+            );
 
             if (totalWeight > 0) {
               avgSeeDirect =
-                supplierItems.reduce((sum, item) => sum + (item.seeDirect || 0) * (item.quantity || 0), 0) / totalWeight
+                supplierItems.reduce(
+                  (sum, item) =>
+                    sum + (item.seeDirect || 0) * (item.quantity || 0),
+                  0
+                ) / totalWeight;
 
               avgSeeIndirect =
-                supplierItems.reduce((sum, item) => sum + (item.seeIndirect || 0) * (item.quantity || 0), 0) /
-                totalWeight
+                supplierItems.reduce(
+                  (sum, item) =>
+                    sum + (item.seeIndirect || 0) * (item.quantity || 0),
+                  0
+                ) / totalWeight;
             }
           }
 
-          const avgSeeTotal = avgSeeDirect + avgSeeIndirect
+          const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity // Already in tCO2
+          const totalEmissions = avgSeeTotal * importQuantity; // Already in tCO2
 
           return {
             label: supplier,
@@ -490,8 +639,8 @@ export function EmissionsVisualization({
             avgSeeIndirect: Math.round(avgSeeIndirect * 100) / 100, // Round to 2 decimal places
             avgSeeTotal: Math.round(avgSeeTotal * 100) / 100, // Round to 2 decimal places
             totalEmissions: Math.round(totalEmissions * 100) / 100, // Round to 2 decimal places
-          }
-        })
+          };
+        });
 
         datasets = [
           {
@@ -520,74 +669,103 @@ export function EmissionsVisualization({
             borderWidth: 0, // Remove border
             yAxisID: "y1", // Secondary axis (right)
           },
-        ]
+        ];
       } else if (viewMode === "cnCodes") {
         // Use CN codes that have data after filtering
         const activeCnCodes = uniqueCnCodes.filter((cnCode) =>
-          filteredData.some((item) => (item.cnCode || "Unknown") === cnCode),
-        )
+          filteredData.some((item) => (item.cnCode || "Unknown") === cnCode)
+        );
 
-        labels = activeCnCodes
+        labels = activeCnCodes;
 
         if (activeCnCodes.length === 0) {
           setChartData({
             labels: [],
             datasets: [],
-          })
-          setIsDataReady(false)
-          return
+          });
+          setIsDataReady(false);
+          return;
         }
 
         // Calculate direct and indirect emissions separately
         const cnCodeDirectEmissions = activeCnCodes.map((cnCode) => {
-          const cnCodeItems = filteredData.filter((item) => (item.cnCode || "Unknown") === cnCode)
+          const cnCodeItems = filteredData.filter(
+            (item) => (item.cnCode || "Unknown") === cnCode
+          );
           const directEmissions = cnCodeItems.reduce((sum, item) => {
-            return sum + (item.seeDirect || 0) * (item.quantity || 0)
-          }, 0)
-          return Math.round(directEmissions)
-        })
+            return sum + (item.seeDirect || 0) * (item.quantity || 0);
+          }, 0);
+          return Math.round(directEmissions);
+        });
 
         const cnCodeIndirectEmissions = activeCnCodes.map((cnCode) => {
-          const cnCodeItems = filteredData.filter((item) => (item.cnCode || "Unknown") === cnCode)
+          const cnCodeItems = filteredData.filter(
+            (item) => (item.cnCode || "Unknown") === cnCode
+          );
           const indirectEmissions = cnCodeItems.reduce((sum, item) => {
-            return sum + (item.seeIndirect || 0) * (item.quantity || 0)
-          }, 0)
-          return Math.round(indirectEmissions)
-        })
+            return sum + (item.seeIndirect || 0) * (item.quantity || 0);
+          }, 0);
+          return Math.round(indirectEmissions);
+        });
 
         const cnCodeImports = activeCnCodes.map((cnCode) => {
-          const cnCodeItems = filteredData.filter((item) => (item.cnCode || "Unknown") === cnCode)
-          return cnCodeItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
-        })
+          const cnCodeItems = filteredData.filter(
+            (item) => (item.cnCode || "Unknown") === cnCode
+          );
+          return cnCodeItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
+        });
 
         // Create detailed data for each CN code
         detailedData = activeCnCodes.map((cnCode, index) => {
-          const cnCodeItems = filteredData.filter((item) => (item.cnCode || "Unknown") === cnCode)
-          const uniqueSupplierCount = new Set(cnCodeItems.map((item) => item.manufacturer)).size
-          const uniqueQuarterCount = new Set(cnCodeItems.map((item) => item.quarter)).size
-          const importQuantity = cnCodeItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+          const cnCodeItems = filteredData.filter(
+            (item) => (item.cnCode || "Unknown") === cnCode
+          );
+          const uniqueSupplierCount = new Set(
+            cnCodeItems.map((item) => item.manufacturer)
+          ).size;
+          const uniqueQuarterCount = new Set(
+            cnCodeItems.map((item) => item.quarter)
+          ).size;
+          const importQuantity = cnCodeItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
 
           // Calculate average SEE values
-          let avgSeeDirect = 0
-          let avgSeeIndirect = 0
+          let avgSeeDirect = 0;
+          let avgSeeIndirect = 0;
 
           if (cnCodeItems.length > 0) {
             // Calculate weighted average SEE values
-            const totalWeight = cnCodeItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+            const totalWeight = cnCodeItems.reduce(
+              (sum, item) => sum + (item.quantity || 0),
+              0
+            );
 
             if (totalWeight > 0) {
               avgSeeDirect =
-                cnCodeItems.reduce((sum, item) => sum + (item.seeDirect || 0) * (item.quantity || 0), 0) / totalWeight
+                cnCodeItems.reduce(
+                  (sum, item) =>
+                    sum + (item.seeDirect || 0) * (item.quantity || 0),
+                  0
+                ) / totalWeight;
 
               avgSeeIndirect =
-                cnCodeItems.reduce((sum, item) => sum + (item.seeIndirect || 0) * (item.quantity || 0), 0) / totalWeight
+                cnCodeItems.reduce(
+                  (sum, item) =>
+                    sum + (item.seeIndirect || 0) * (item.quantity || 0),
+                  0
+                ) / totalWeight;
             }
           }
 
-          const avgSeeTotal = avgSeeDirect + avgSeeIndirect
+          const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity // Already in tCO2
+          const totalEmissions = avgSeeTotal * importQuantity; // Already in tCO2
 
           return {
             label: cnCode,
@@ -598,8 +776,8 @@ export function EmissionsVisualization({
             avgSeeIndirect: Math.round(avgSeeIndirect * 100) / 100, // Round to 2 decimal places
             avgSeeTotal: Math.round(avgSeeTotal * 100) / 100, // Round to 2 decimal places
             totalEmissions: Math.round(totalEmissions * 100) / 100, // Round to 2 decimal places
-          }
-        })
+          };
+        });
 
         datasets = [
           {
@@ -628,36 +806,41 @@ export function EmissionsVisualization({
             borderWidth: 0, // Remove border
             yAxisID: "y1", // Secondary axis (right)
           },
-        ]
+        ];
       }
 
       // Ensure we have valid data before setting chart data
-      if (labels.length > 0 && datasets.length > 0 && datasets[0].data.length > 0) {
+      if (
+        labels.length > 0 &&
+        datasets.length > 0 &&
+        datasets[0].data.length > 0
+      ) {
         setChartData({
           labels,
           datasets,
           detailedData,
           // Store whether we're showing limited suppliers
-          isLimitedSuppliers: viewMode === "suppliers" && uniqueSuppliers.length > 10,
-        })
-        setIsDataReady(true)
+          isLimitedSuppliers:
+            viewMode === "suppliers" && uniqueSuppliers.length > 10,
+        });
+        setIsDataReady(true);
       } else {
         setChartData({
           labels: [],
           datasets: [],
-        })
-        setIsDataReady(false)
+        });
+        setIsDataReady(false);
       }
     } catch (error) {
-      console.error("Error processing chart data:", error)
+      console.error("Error processing chart data:", error);
       const errorChartData = {
         labels: [],
         datasets: [],
         detailedData: [],
-      }
-      setChartData(errorChartData)
+      };
+      setChartData(errorChartData);
 
-      setIsDataReady(false)
+      setIsDataReady(false);
     }
   }, [
     goodsImports,
@@ -670,7 +853,7 @@ export function EmissionsVisualization({
     selectedCnCodes,
     selectedCountries,
     selectedGoodCategories,
-  ])
+  ]);
 
   const options: ChartOptions<"bar"> = {
     responsive: true,
@@ -689,13 +872,13 @@ export function EmissionsVisualization({
             const value = context.raw.toLocaleString(undefined, {
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
-            })
+            });
             if (context.datasetIndex === 0) {
-              return `Direct Emissions: ${value} tCO₂`
+              return `Direct Emissions: ${value} tCO₂`;
             } else if (context.datasetIndex === 1) {
-              return `Indirect Emissions: ${value} tCO₂`
+              return `Indirect Emissions: ${value} tCO₂`;
             } else {
-              return `Import Quantity: ${value} tons`
+              return `Import Quantity: ${value} tons`;
             }
           },
         },
@@ -706,30 +889,31 @@ export function EmissionsVisualization({
           // Only show data labels for the top of the stack or for the import quantity
           if (context.datasetIndex === 1) {
             // Indirect emissions (top of emissions stack)
-            return context.dataset.data && context.dataset.data.length > 0
+            return context.dataset.data && context.dataset.data.length > 0;
           } else if (context.datasetIndex === 2) {
             // Import quantity
-            return context.dataset.data && context.dataset.data.length > 0
+            return context.dataset.data && context.dataset.data.length > 0;
           }
-          return false // Hide for direct emissions (bottom of stack)
+          return false; // Hide for direct emissions (bottom of stack)
         },
         anchor: "end",
         align: "top",
         formatter: (value: number, context: any) => {
-          if (!value && value !== 0) return ""
+          if (!value && value !== 0) return "";
           if (context.datasetIndex === 1) {
             // Indirect emissions (show total emissions)
             // Calculate total emissions (direct + indirect) for this label
-            const labelIndex = context.dataIndex
-            const directValue = context.chart.data.datasets[0].data[labelIndex] || 0
-            const indirectValue = value
-            const total = directValue + indirectValue
-            return total.toLocaleString() + "\ntCO₂"
+            const labelIndex = context.dataIndex;
+            const directValue =
+              context.chart.data.datasets[0].data[labelIndex] || 0;
+            const indirectValue = value;
+            const total = directValue + indirectValue;
+            return total.toLocaleString() + "\ntCO₂";
           } else if (context.datasetIndex === 2) {
             // Import quantity
-            return value.toLocaleString() + "\ntons"
+            return value.toLocaleString() + "\ntons";
           }
-          return ""
+          return "";
         },
         font: {
           weight: "bold",
@@ -776,7 +960,12 @@ export function EmissionsVisualization({
       x: {
         title: {
           display: true,
-          text: viewMode === "quarters" ? "Quarter" : viewMode === "suppliers" ? "Supplier" : "CN Code",
+          text:
+            viewMode === "quarters"
+              ? "Quarter"
+              : viewMode === "suppliers"
+              ? "Supplier"
+              : "CN Code",
         },
       },
     },
@@ -786,87 +975,107 @@ export function EmissionsVisualization({
         top: 80, // Increased from 50 to 80 for more space
       },
     },
-  }
+  };
 
   // Filter toggle handlers
   const handleToggleSupplier = (supplier: string) => {
-    setSelectedSuppliers((prev) => (prev.includes(supplier) ? prev.filter((s) => s !== supplier) : [...prev, supplier]))
-  }
+    setSelectedSuppliers((prev) =>
+      prev.includes(supplier)
+        ? prev.filter((s) => s !== supplier)
+        : [...prev, supplier]
+    );
+  };
 
   const handleToggleQuarter = (quarter: string) => {
-    setSelectedQuarters((prev) => (prev.includes(quarter) ? prev.filter((q) => q !== quarter) : [...prev, quarter]))
-  }
+    setSelectedQuarters((prev) =>
+      prev.includes(quarter)
+        ? prev.filter((q) => q !== quarter)
+        : [...prev, quarter]
+    );
+  };
 
   const handleToggleCnCode = (cnCode: string) => {
-    setSelectedCnCodes((prev) => (prev.includes(cnCode) ? prev.filter((c) => c !== cnCode) : [...prev, cnCode]))
-  }
+    setSelectedCnCodes((prev) =>
+      prev.includes(cnCode)
+        ? prev.filter((c) => c !== cnCode)
+        : [...prev, cnCode]
+    );
+  };
 
   const handleToggleCountry = (country: string) => {
-    setSelectedCountries((prev) => (prev.includes(country) ? prev.filter((c) => c !== country) : [...prev, country]))
-  }
+    setSelectedCountries((prev) =>
+      prev.includes(country)
+        ? prev.filter((c) => c !== country)
+        : [...prev, country]
+    );
+  };
 
   const handleToggleGoodCategory = (category: string) => {
     setSelectedGoodCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
-    )
-  }
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
+  };
 
   // Select all handlers
   const handleSelectAllSuppliers = () => {
-    setSelectedSuppliers([...uniqueSuppliers])
-  }
+    setSelectedSuppliers([...uniqueSuppliers]);
+  };
 
   const handleSelectAllQuarters = () => {
-    setSelectedQuarters([...uniqueQuarters])
-  }
+    setSelectedQuarters([...uniqueQuarters]);
+  };
 
   const handleSelectAllCnCodes = () => {
-    setSelectedCnCodes([...uniqueCnCodes])
-  }
+    setSelectedCnCodes([...uniqueCnCodes]);
+  };
 
   const handleSelectAllCountries = () => {
-    setSelectedCountries([...uniqueCountries])
-  }
+    setSelectedCountries([...uniqueCountries]);
+  };
 
   const handleSelectAllGoodCategories = () => {
-    setSelectedGoodCategories([...uniqueGoodCategories])
-  }
+    setSelectedGoodCategories([...uniqueGoodCategories]);
+  };
 
   // Clear handlers
   const handleClearSuppliers = () => {
-    setSelectedSuppliers([])
-  }
+    setSelectedSuppliers([]);
+  };
 
   const handleClearQuarters = () => {
-    setSelectedQuarters([])
-  }
+    setSelectedQuarters([]);
+  };
 
   const handleClearCnCodes = () => {
-    setSelectedCnCodes([])
-  }
+    setSelectedCnCodes([]);
+  };
 
   const handleClearCountries = () => {
-    setSelectedCountries([])
-  }
+    setSelectedCountries([]);
+  };
 
   const handleClearGoodCategories = () => {
-    setSelectedGoodCategories([])
-  }
+    setSelectedGoodCategories([]);
+  };
 
   // Filtered lists based on search
   const filteredSuppliers = uniqueSuppliers.filter((supplier) =>
-    supplier.toLowerCase().includes(supplierSearch.toLowerCase()),
-  )
+    supplier.toLowerCase().includes(supplierSearch.toLowerCase())
+  );
 
-  const filteredCnCodes = uniqueCnCodes.filter((cnCode) => cnCode.toLowerCase().includes(cnCodeSearch.toLowerCase()))
+  const filteredCnCodes = uniqueCnCodes.filter((cnCode) =>
+    cnCode.toLowerCase().includes(cnCodeSearch.toLowerCase())
+  );
 
   const filteredCountries = uniqueCountries.filter((country) =>
-    country.toLowerCase().includes(countrySearch.toLowerCase()),
-  )
+    country.toLowerCase().includes(countrySearch.toLowerCase())
+  );
 
   const filteredGoodCategories = uniqueGoodCategories.filter((category) =>
-    category.toLowerCase().includes(categorySearch.toLowerCase()),
-  )
+    category.toLowerCase().includes(categorySearch.toLowerCase())
+  );
 
   return (
     <>
@@ -880,7 +1089,11 @@ export function EmissionsVisualization({
             >
               <Filter className="h-4 w-4" />
               Filter
-              {internalShowFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {internalShowFilters ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
           </div>
 
@@ -890,7 +1103,9 @@ export function EmissionsVisualization({
                 onClick={() => setInternalViewMode("quarters")}
                 className={cn(
                   "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  viewMode === "quarters" ? "bg-gray-800 text-white" : "text-gray-600 hover:bg-gray-100",
+                  viewMode === "quarters"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
                 )}
               >
                 By Quarters
@@ -899,7 +1114,9 @@ export function EmissionsVisualization({
                 onClick={() => setInternalViewMode("suppliers")}
                 className={cn(
                   "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  viewMode === "suppliers" ? "bg-gray-800 text-white" : "text-gray-600 hover:bg-gray-100",
+                  viewMode === "suppliers"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
                 )}
               >
                 By Suppliers
@@ -908,7 +1125,9 @@ export function EmissionsVisualization({
                 onClick={() => setInternalViewMode("cnCodes")}
                 className={cn(
                   "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  viewMode === "cnCodes" ? "bg-gray-800 text-white" : "text-gray-600 hover:bg-gray-100",
+                  viewMode === "cnCodes"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
                 )}
               >
                 By CN Codes
@@ -927,26 +1146,26 @@ export function EmissionsVisualization({
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="text-xs h-6 px-2"
                     onClick={() => {
-                      handleSelectAllGoodCategories()
-                      handleSelectAllCnCodes()
-                      handleSelectAllCountries()
-                      handleSelectAllSuppliers()
+                      handleSelectAllGoodCategories();
+                      handleSelectAllCnCodes();
+                      handleSelectAllCountries();
+                      handleSelectAllSuppliers();
                     }}
                   >
                     Select All
                   </Button>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="text-xs h-6 px-2"
                     onClick={() => {
-                      handleClearGoodCategories()
-                      handleClearCnCodes()
-                      handleClearCountries()
-                      handleClearSuppliers()
+                      handleClearGoodCategories();
+                      handleClearCnCodes();
+                      handleClearCountries();
+                      handleClearSuppliers();
                     }}
                   >
                     Clear All
@@ -962,7 +1181,7 @@ export function EmissionsVisualization({
                     {selectedGoodCategories.length > 0 && (
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="default"
                         onClick={handleClearGoodCategories}
                         className="text-xs text-gray-500 h-5 px-1"
                       >
@@ -984,15 +1203,20 @@ export function EmissionsVisualization({
                   </div>
                   <div className="max-h-28 overflow-y-auto space-y-1 pr-1">
                     {filteredGoodCategories.map((category) => (
-                      <div key={category} className="flex items-center justify-between">
+                      <div
+                        key={category}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center">
                           <Button
                             variant="ghost"
-                            size="xs"
+                            size="default"
                             onClick={() => handleToggleGoodCategory(category)}
                             className={cn(
                               "h-5 w-5 p-0 mr-1",
-                              selectedGoodCategories.includes(category) ? "text-primary" : "text-gray-400",
+                              selectedGoodCategories.includes(category)
+                                ? "text-primary"
+                                : "text-gray-400"
                             )}
                           >
                             {selectedGoodCategories.includes(category) ? (
@@ -1001,9 +1225,14 @@ export function EmissionsVisualization({
                               <Plus className="h-3 w-3" />
                             )}
                           </Button>
-                          <label className="text-xs truncate max-w-[120px]">{category}</label>
+                          <label className="text-xs truncate max-w-[120px]">
+                            {category}
+                          </label>
                         </div>
-                        <Badge variant="outline" className="text-xs h-4 px-1 ml-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs h-4 px-1 ml-1"
+                        >
                           {calculateFilterCounts.goodCategories[category] || 0}
                         </Badge>
                       </div>
@@ -1018,7 +1247,7 @@ export function EmissionsVisualization({
                     {selectedCnCodes.length > 0 && (
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="default"
                         onClick={handleClearCnCodes}
                         className="text-xs text-gray-500 h-5 px-1"
                       >
@@ -1037,15 +1266,20 @@ export function EmissionsVisualization({
                   </div>
                   <div className="max-h-28 overflow-y-auto space-y-1 pr-1">
                     {filteredCnCodes.map((cnCode) => (
-                      <div key={cnCode} className="flex items-center justify-between">
+                      <div
+                        key={cnCode}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center">
                           <Button
                             variant="ghost"
-                            size="xs"
+                            size="default"
                             onClick={() => handleToggleCnCode(cnCode)}
                             className={cn(
                               "h-5 w-5 p-0 mr-1",
-                              selectedCnCodes.includes(cnCode) ? "text-primary" : "text-gray-400",
+                              selectedCnCodes.includes(cnCode)
+                                ? "text-primary"
+                                : "text-gray-400"
                             )}
                           >
                             {selectedCnCodes.includes(cnCode) ? (
@@ -1054,9 +1288,14 @@ export function EmissionsVisualization({
                               <Plus className="h-3 w-3" />
                             )}
                           </Button>
-                          <label className="text-xs truncate max-w-[120px]">{cnCode}</label>
+                          <label className="text-xs truncate max-w-[120px]">
+                            {cnCode}
+                          </label>
                         </div>
-                        <Badge variant="outline" className="text-xs h-4 px-1 ml-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs h-4 px-1 ml-1"
+                        >
                           {calculateFilterCounts.cnCodes[cnCode] || 0}
                         </Badge>
                       </div>
@@ -1071,7 +1310,7 @@ export function EmissionsVisualization({
                     {selectedCountries.length > 0 && (
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="default"
                         onClick={handleClearCountries}
                         className="text-xs text-gray-500 h-5 px-1"
                       >
@@ -1090,15 +1329,20 @@ export function EmissionsVisualization({
                   </div>
                   <div className="max-h-28 overflow-y-auto space-y-1 pr-1">
                     {filteredCountries.map((country) => (
-                      <div key={country} className="flex items-center justify-between">
+                      <div
+                        key={country}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center">
                           <Button
                             variant="ghost"
-                            size="xs"
+                            size="default"
                             onClick={() => handleToggleCountry(country)}
                             className={cn(
                               "h-5 w-5 p-0 mr-1",
-                              selectedCountries.includes(country) ? "text-primary" : "text-gray-400",
+                              selectedCountries.includes(country)
+                                ? "text-primary"
+                                : "text-gray-400"
                             )}
                           >
                             {selectedCountries.includes(country) ? (
@@ -1107,9 +1351,14 @@ export function EmissionsVisualization({
                               <Plus className="h-3 w-3" />
                             )}
                           </Button>
-                          <label className="text-xs truncate max-w-[120px]">{country}</label>
+                          <label className="text-xs truncate max-w-[120px]">
+                            {country}
+                          </label>
                         </div>
-                        <Badge variant="outline" className="text-xs h-4 px-1 ml-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs h-4 px-1 ml-1"
+                        >
                           {calculateFilterCounts.countries[country] || 0}
                         </Badge>
                       </div>
@@ -1118,13 +1367,19 @@ export function EmissionsVisualization({
                 </div>
 
                 {/* Suppliers filter (shown in quarters view) */}
-                <div className={viewMode === "suppliers" ? "hidden" : "border rounded-md p-2"}>
+                <div
+                  className={
+                    viewMode === "suppliers"
+                      ? "hidden"
+                      : "border rounded-md p-2"
+                  }
+                >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-medium">Suppliers</span>
                     {selectedSuppliers.length > 0 && (
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="default"
                         onClick={handleClearSuppliers}
                         className="text-xs text-gray-500 h-5 px-1"
                       >
@@ -1143,15 +1398,20 @@ export function EmissionsVisualization({
                   </div>
                   <div className="max-h-28 overflow-y-auto space-y-1 pr-1">
                     {filteredSuppliers.map((supplier) => (
-                      <div key={supplier} className="flex items-center justify-between">
+                      <div
+                        key={supplier}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center">
                           <Button
                             variant="ghost"
-                            size="xs"
+                            size="default"
                             onClick={() => handleToggleSupplier(supplier)}
                             className={cn(
                               "h-5 w-5 p-0 mr-1",
-                              selectedSuppliers.includes(supplier) ? "text-primary" : "text-gray-400",
+                              selectedSuppliers.includes(supplier)
+                                ? "text-primary"
+                                : "text-gray-400"
                             )}
                           >
                             {selectedSuppliers.includes(supplier) ? (
@@ -1160,9 +1420,14 @@ export function EmissionsVisualization({
                               <Plus className="h-3 w-3" />
                             )}
                           </Button>
-                          <label className="text-xs truncate max-w-[120px]">{supplier}</label>
+                          <label className="text-xs truncate max-w-[120px]">
+                            {supplier}
+                          </label>
                         </div>
-                        <Badge variant="outline" className="text-xs h-4 px-1 ml-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs h-4 px-1 ml-1"
+                        >
                           {calculateFilterCounts.suppliers[supplier] || 0}
                         </Badge>
                       </div>
@@ -1171,13 +1436,17 @@ export function EmissionsVisualization({
                 </div>
 
                 {/* Quarters filter (shown in suppliers view) */}
-                <div className={viewMode === "quarters" ? "hidden" : "border rounded-md p-2"}>
+                <div
+                  className={
+                    viewMode === "quarters" ? "hidden" : "border rounded-md p-2"
+                  }
+                >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-medium">Quarters</span>
                     {selectedQuarters.length > 0 && (
                       <Button
                         variant="ghost"
-                        size="xs"
+                        size="default"
                         onClick={handleClearQuarters}
                         className="text-xs text-gray-500 h-5 px-1"
                       >
@@ -1187,15 +1456,20 @@ export function EmissionsVisualization({
                   </div>
                   <div className="max-h-28 overflow-y-auto space-y-1 pr-1">
                     {uniqueQuarters.map((quarter) => (
-                      <div key={quarter} className="flex items-center justify-between">
+                      <div
+                        key={quarter}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center">
                           <Button
                             variant="ghost"
-                            size="xs"
+                            size="default"
                             onClick={() => handleToggleQuarter(quarter)}
                             className={cn(
                               "h-5 w-5 p-0 mr-1",
-                              selectedQuarters.includes(quarter) ? "text-primary" : "text-gray-400",
+                              selectedQuarters.includes(quarter)
+                                ? "text-primary"
+                                : "text-gray-400"
                             )}
                           >
                             {selectedQuarters.includes(quarter) ? (
@@ -1206,7 +1480,10 @@ export function EmissionsVisualization({
                           </Button>
                           <label className="text-xs">{quarter}</label>
                         </div>
-                        <Badge variant="outline" className="text-xs h-4 px-1 ml-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs h-4 px-1 ml-1"
+                        >
                           {calculateFilterCounts.quarters[quarter] || 0}
                         </Badge>
                       </div>
@@ -1221,11 +1498,15 @@ export function EmissionsVisualization({
           <div className="mb-4 flex flex-wrap gap-1">
             {selectedGoodCategories.length < uniqueGoodCategories.length &&
               selectedGoodCategories.map((category) => (
-                <Badge key={`cat-${category}`} variant="secondary" className="px-2 py-1 flex items-center gap-1">
+                <Badge
+                  key={`cat-${category}`}
+                  variant="secondary"
+                  className="px-2 py-1 flex items-center gap-1"
+                >
                   <span className="text-xs">Category: {category}</span>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleToggleGoodCategory(category)}
                   >
@@ -1236,11 +1517,15 @@ export function EmissionsVisualization({
 
             {selectedCnCodes.length < uniqueCnCodes.length &&
               selectedCnCodes.map((code) => (
-                <Badge key={`cn-${code}`} variant="secondary" className="px-2 py-1 flex items-center gap-1">
+                <Badge
+                  key={`cn-${code}`}
+                  variant="secondary"
+                  className="px-2 py-1 flex items-center gap-1"
+                >
                   <span className="text-xs">CN: {code}</span>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleToggleCnCode(code)}
                   >
@@ -1251,11 +1536,15 @@ export function EmissionsVisualization({
 
             {selectedCountries.length < uniqueCountries.length &&
               selectedCountries.map((country) => (
-                <Badge key={`country-${country}`} variant="secondary" className="px-2 py-1 flex items-center gap-1">
+                <Badge
+                  key={`country-${country}`}
+                  variant="secondary"
+                  className="px-2 py-1 flex items-center gap-1"
+                >
                   <span className="text-xs">Country: {country}</span>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleToggleCountry(country)}
                   >
@@ -1267,11 +1556,15 @@ export function EmissionsVisualization({
             {viewMode === "quarters" &&
               selectedSuppliers.length < uniqueSuppliers.length &&
               selectedSuppliers.map((supplier) => (
-                <Badge key={`supplier-${supplier}`} variant="secondary" className="px-2 py-1 flex items-center gap-1">
+                <Badge
+                  key={`supplier-${supplier}`}
+                  variant="secondary"
+                  className="px-2 py-1 flex items-center gap-1"
+                >
                   <span className="text-xs">Supplier: {supplier}</span>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleToggleSupplier(supplier)}
                   >
@@ -1283,11 +1576,15 @@ export function EmissionsVisualization({
             {viewMode === "suppliers" &&
               selectedQuarters.length < uniqueQuarters.length &&
               selectedQuarters.map((quarter) => (
-                <Badge key={`quarter-${quarter}`} variant="secondary" className="px-2 py-1 flex items-center gap-1">
+                <Badge
+                  key={`quarter-${quarter}`}
+                  variant="secondary"
+                  className="px-2 py-1 flex items-center gap-1"
+                >
                   <span className="text-xs">Quarter: {quarter}</span>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="default"
                     className="h-4 w-4 p-0 hover:bg-transparent"
                     onClick={() => handleToggleQuarter(quarter)}
                   >
@@ -1305,13 +1602,18 @@ export function EmissionsVisualization({
               <TooltipProvider>
                 <UITooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="xs" className="h-5 w-5 p-0">
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      className="h-5 w-5 p-0"
+                    >
                       <Info className="h-3 w-3" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs max-w-xs">
-                      For better visualization, only the top 10 suppliers by total emissions are shown in the chart.
+                      For better visualization, only the top 10 suppliers by
+                      total emissions are shown in the chart.
                     </p>
                   </TooltipContent>
                 </UITooltip>
@@ -1329,8 +1631,12 @@ export function EmissionsVisualization({
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <p className="text-gray-500">No data available for the selected filters.</p>
-                  <p className="text-sm text-gray-400 mt-2">Try adjusting your filters or adding more data.</p>
+                  <p className="text-gray-500">
+                    No data available for the selected filters.
+                  </p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Try adjusting your filters or adding more data.
+                  </p>
                 </div>
               </div>
             )}
@@ -1347,7 +1653,11 @@ export function EmissionsVisualization({
             <thead>
               <tr>
                 <th className="px-4 py-2 font-medium text-left border-b bg-white text-muted-foreground">
-                  {viewMode === "quarters" ? "Quarter" : viewMode === "suppliers" ? "Supplier" : "CN Code"}
+                  {viewMode === "quarters"
+                    ? "Quarter"
+                    : viewMode === "suppliers"
+                    ? "Supplier"
+                    : "CN Code"}
                 </th>
                 <th className="px-4 py-2 font-medium text-left border-b bg-white text-muted-foreground [&:not([:first-child])]:border-l">
                   {viewMode === "quarters" ? "# Suppliers" : "# Quarters"}
@@ -1381,9 +1691,13 @@ export function EmissionsVisualization({
                   >
                     <td className="p-4">{item.label}</td>
                     <td className="p-4 [&:not([:first-child])]:border-l">
-                      {viewMode === "quarters" ? item.supplierCount : item.quarterCount}
+                      {viewMode === "quarters"
+                        ? item.supplierCount
+                        : item.quarterCount}
                     </td>
-                    <td className="p-4 [&:not([:first-child])]:border-l">{item.goodsCount}</td>
+                    <td className="p-4 [&:not([:first-child])]:border-l">
+                      {item.goodsCount}
+                    </td>
                     <td className="p-4 [&:not([:first-child])]:border-l">
                       {item.importQuantity.toLocaleString()} tons
                     </td>
@@ -1393,7 +1707,9 @@ export function EmissionsVisualization({
                     <td className="p-4 [&:not([:first-child])]:border-l">
                       {item.avgSeeIndirect.toLocaleString()} tCO₂/t
                     </td>
-                    <td className="p-4 [&:not([:first-child])]:border-l">{item.avgSeeTotal.toLocaleString()} tCO₂/t</td>
+                    <td className="p-4 [&:not([:first-child])]:border-l">
+                      {item.avgSeeTotal.toLocaleString()} tCO₂/t
+                    </td>
                     <td className="p-4 [&:not([:first-child])]:border-l">
                       {item.totalEmissions.toLocaleString()} tCO₂
                     </td>
@@ -1411,5 +1727,5 @@ export function EmissionsVisualization({
         </div>
       </div>
     </>
-  )
+  );
 }

@@ -8,6 +8,7 @@ export const cnCodes = sqliteTable("cn_codes", {
   description: text("description"),
   see_direct: real("see_direct"),
   see_indirect: real("see_indirect"),
+  supplierId:real("supplier_id")
 })
 
 export const persons = sqliteTable("persons", {
@@ -31,17 +32,25 @@ export const suppliers = sqliteTable("suppliers", {
   company_mail: text("company_mail"),
   latitude: real("latitude"),
   longitude: real("longitude"),
-  remarks: text("remarks"),
+  remarks: text("remarks"), 
   emission_data_status: text("emission_data_status"),
   emission_data_valid_until: integer("emission_data_valid_until"),
   consulting: integer("consulting"),
   consulting_hours: integer("consulting_hours"),
   last_update: text("last_update"),
+  see_direct: real("see_direct"),
+  see_indirect: real("see_indirect"),
+  see_total: real("see_total"),
+  emission_factor: real("emission_factor"),
+  electricity_emissions: real("electricity_emissions"),
+  determinationType: text("determination_type"),
+  productionMethodCode: text("production_method_code"),
 })
 
 export const supplierCnCodeMappings = sqliteTable(
   "supplier_cn_code_mappings",
   {
+    id: integer("id").primaryKey(),
     supplier_id: integer("supplier_id").notNull(),
     cn_code_id: integer("cn_code_id").notNull(),
   },

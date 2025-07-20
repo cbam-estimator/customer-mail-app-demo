@@ -1,6 +1,8 @@
+import { email } from "zod/v4/core/regexes.cjs";
 import { db } from "../lib/db/config"
-import { suppliers, cnCodes } from "../lib/db/schema"
+import { suppliers, cnCodes, persons, supplierCnCodeMappings, goods, supplierFiles, goodsImports } from "../lib/db/schema"
 import { SupplierStatus } from "../types/supplier"
+import { Phone } from "lucide-react";
 
 
 
@@ -271,6 +273,249 @@ const initialcnCodes = [
 ];
 
 
+
+const initialcnPersons = [
+  {
+    id: 1,
+    name: "John Smith",
+    email: "john@gmail.com",
+    phone: "+1234567890",
+  },
+  {
+    id: 2,
+    name: "Amina Khan",
+    email: "amina.khan@example.com",
+    phone: "+441234567890",
+  },
+  {
+    id: 3,
+    name: "Carlos Mendes",
+    email: "carlos.mendes@example.com",
+    phone: "+5511987654321",
+  },
+  {
+    id: 4,
+    name: "Yuki Tanaka",
+    email: "yuki.tanaka@example.jp",
+    phone: "+81312345678",
+  },
+  {
+    id: 5,
+    name: "Fatima Al-Mansouri",
+    email: "fatima.mansouri@example.ae",
+    phone: "+971501234567",
+  },
+  {
+    id: 6,
+    name: "Liam O'Connor",
+    email: "liam.oconnor@example.ie",
+    phone: "+353851234567",
+  },
+];
+
+
+
+const initialsupplierCnCodeMappings = [
+  {
+    supplier_id: 1,
+    cn_code_id: 2,
+  },
+  {
+    supplier_id: 1,
+    cn_code_id: 3,
+  },
+  {
+    supplier_id: 2,
+    cn_code_id: 1,
+  },
+  {
+    supplier_id: 2,
+    cn_code_id: 4,
+  },
+  {
+    supplier_id: 3,
+    cn_code_id: 2,
+  },
+  {
+    supplier_id: 3,
+    cn_code_id: 5,
+  },
+  {
+    supplier_id: 4,
+    cn_code_id: 1,
+  },
+  {
+    supplier_id: 4,
+    cn_code_id: 3,
+  },
+  {
+    supplier_id: 5,
+    cn_code_id: 4,
+  },
+  {
+    supplier_id: 5,
+    cn_code_id: 5,
+  },
+];
+
+
+
+
+const initialgoods = [
+  {
+    id: 1,
+    supplier_id: 1,
+    cn_code_id: 1,
+    quantity: 20,
+    production_method_code: "PM001",
+    production_method_desc: "Electric Arc Furnace",
+    customer_proc_code: "CP001",
+    customer_proc_desc: "Customs Procedure A",
+    remarks: "High quality steel",
+    date: "1750720709",
+    see_direct: 1.2,
+    see_indirect: 0.3,
+  },
+  {
+    id: 2,
+    supplier_id: 2,
+    cn_code_id: 3,
+    quantity: 50,
+    production_method_code: "PM002",
+    production_method_desc: "Basic Oxygen Furnace",
+    customer_proc_code: "CP002",
+    customer_proc_desc: "Customs Procedure B",
+    remarks: "Standard grade steel",
+    date: "1750720800",
+    see_direct: 1.5,
+    see_indirect: 0.4,
+  },
+  {
+    id: 3,
+    supplier_id: 3,
+    cn_code_id: 5,
+    quantity: 35,
+    production_method_code: "PM003",
+    production_method_desc: "Continuous Casting",
+    customer_proc_code: "CP003",
+    customer_proc_desc: "Customs Procedure C",
+    remarks: "Semi-finished product",
+    date: "1750720900",
+    see_direct: 1.1,
+    see_indirect: 0.2,
+  },
+];
+
+
+const initialsupplierFiles = [
+  {
+    id: 1,
+    supplierId: 1,
+    filename: "steel_data_2023.xlsx",
+    dateReceived: "2023-04-01",
+    documentType: "Emission Data",
+    filesize: 204800,
+    url: "https://example.com/files/steel_data_2023.xlsx",
+  },
+  {
+    id: 2,
+    supplierId: 2,
+    filename: "aluminum_report_2023.pdf",
+    dateReceived: "2023-05-15",
+    documentType: "Production Report",
+    filesize: 512000,
+    url: "https://example.com/files/aluminum_report_2023.pdf",
+  },
+  {
+    id: 3,
+    supplierId: 3,
+    filename: "copper_emissions_2023.csv",
+    dateReceived: "2023-03-10",
+    documentType: "Emission Data",
+    filesize: 102400,
+    url: "https://example.com/files/copper_emissions_2023.csv",
+  },
+  {
+    id: 4,
+    supplierId: 4,
+    filename: "nickel_quality_2023.docx",
+    dateReceived: "2023-06-01",
+    documentType: "Quality Report",
+    filesize: 307200,
+    url: "https://example.com/files/nickel_quality_2023.docx",
+  },
+  {
+    id: 5,
+    supplierId: 5,
+    filename: "zinc_data_2023.xlsx",
+    dateReceived: "2023-07-20",
+    documentType: "Emission Data",
+    filesize: 256000,
+    url: "https://example.com/files/zinc_data_2023.xlsx",
+  },
+];
+
+
+export const initialgoodsImports = [
+  {
+    id: 1,
+    supplier_id: 1,
+    cn_code: "7201.10",
+    goods_description: "Pig iron in pigs, blocks or other primary forms",
+    quarter: "2023-Q1",
+    imported_amount: 1500.5,
+    unit: "tons",
+    imported_value: 1200000,
+    currency: "USD",
+  },
+  {
+    id: 2,
+    supplier_id: 2,
+    cn_code: "7403.11",
+    goods_description: "Copper cathodes and sections of cathodes",
+    quarter: "2023-Q1",
+    imported_amount: 800.75,
+    unit: "tons",
+    imported_value: 980000,
+    currency: "USD",
+  },
+  {
+    id: 3,
+    supplier_id: 3,
+    cn_code: "7601.10",
+    goods_description: "Unwrought aluminium",
+    quarter: "2023-Q2",
+    imported_amount: 1200,
+    unit: "tons",
+    imported_value: 860000,
+    currency: "EUR",
+  },
+  {
+    id: 4,
+    supplier_id: 4,
+    cn_code: "7207.20",
+    goods_description: "Semi-finished products of iron or non-alloy steel",
+    quarter: "2023-Q2",
+    imported_amount: 650,
+    unit: "tons",
+    imported_value: 450000,
+    currency: "USD",
+  },
+  {
+    id: 5,
+    supplier_id: 5,
+    cn_code: "7410.10",
+    goods_description: "Copper wire",
+    quarter: "2023-Q3",
+    imported_amount: 1100,
+    unit: "tons",
+    imported_value: 720000,
+    currency: "USD",
+  },
+];
+
+
+
 export async function loadInitialData() {
   console.log("Loading initial data...")
 
@@ -283,10 +528,40 @@ export async function loadInitialData() {
     // }
 
     // Insert CN codes
-    for (const cnCode of initialcnCodes) {
-      const result = await db.insert(cnCodes).values(cnCode).returning({ insertedId: cnCodes.id })
-      console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
+    // for (const cnCode of initialcnCodes) {
+    //   const result = await db.insert(cnCodes).values(cnCode).returning({ insertedId: cnCodes.id })
+    //   console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
+    // }
+
+    //Insert Persons
+    for (const person of initialcnPersons) {
+      const result = await db.insert(persons).values(person).returning({ insertedId: persons.id })
+      //console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
     }
+
+      //Insert supplierCnCodeMappings 
+      for (const supplierCnCodeMapping  of initialsupplierCnCodeMappings ) {
+        const result = await db.insert(supplierCnCodeMappings).values(supplierCnCodeMapping).returning({ insertedId: supplierCnCodeMappings.supplier_id })
+        //console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
+      }
+
+      //Insert goods 
+      for (const good  of initialgoods ) {
+        const result = await db.insert(goods).values(good).returning({ insertedId: goods.id })
+        //console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
+      }
+
+        //Insert goods 
+        for (const file  of initialsupplierFiles ) {
+          const result = await db.insert(supplierFiles).values(file).returning({ insertedId: supplierFiles.id })
+          //console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
+        }
+
+          //Insert goods 
+          for (const gi  of initialgoodsImports ) {
+            const result = await db.insert(goodsImports).values(gi).returning({ insertedId: goodsImports.id })
+            //console.log(`Inserted CN code ${cnCode.code} with ID ${result[0].insertedId}`)
+          }
 
     console.log("Initial data loaded successfully")
   } catch (error) {

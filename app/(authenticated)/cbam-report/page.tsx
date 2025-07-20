@@ -41,6 +41,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 2,
@@ -55,6 +56,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 3,
@@ -69,6 +71,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 4,
@@ -83,6 +86,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 5,
@@ -97,6 +101,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 6,
@@ -111,6 +116,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 7,
@@ -125,6 +131,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
   {
     id: 8,
@@ -139,6 +146,7 @@ const mockGoodsImports: GoodsImportRow[] = [
     productionMethod: "",
     customsProcedure: "",
     date: new Date("2023-01-15"),
+    supplierId: 1,
   },
 ];
 
@@ -171,6 +179,11 @@ const mockSuppliers: Supplier[] = [
     ],
     consultationHours: 3,
     country: "",
+    see_direct: 1.2,
+    see_indirect: 0.8,
+    see_total: 2.0,
+    emission_factor: 1.5,
+    electricity_emissions: 0.5,
   },
 ];
 

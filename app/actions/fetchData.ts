@@ -6,9 +6,21 @@ import {
   goods as goodsTable,
   cnCodes as cnCodesTable,
   persons as personsTable,
+  suppliers,
+  cnCodes,
 } from "@/lib/db/schema"
 import { SupplierStatus } from "@/types/supplier"
+import { InferModel } from "drizzle-orm";
 
+type Person = {
+  id: number;
+  name: string | null;
+  email: string | null;
+  phone: string | null ; // if not marked .notNull()
+};
+
+export type Supplier = InferModel<typeof suppliers>;
+export type CnCode = InferModel<typeof cnCodes>;
 // Helper function to convert Unix timestamp to Date object
 const unixTimestampToDate = (timestamp: number | null | undefined): Date | null => {
   if (timestamp === null || timestamp === undefined) return null
@@ -28,7 +40,8 @@ export async function fetchSuppliers() {
     }
 
     // Fetch all persons for contact information - with error handling
-    let persons = []
+    //let persons = Person[]
+    let persons: Person[] = [];
     try {
       persons = await db.select().from(personsTable)
       if (!Array.isArray(persons)) persons = []
@@ -157,8 +170,9 @@ export async function fetchGoods() {
       return { success: true, data: [] }
     }
 
+   
     // Fetch suppliers for relation - with error handling
-    let dbSuppliers = []
+    let dbSuppliers: Supplier[] =[];
     try {
       dbSuppliers = await db.select().from(suppliersTable)
       if (!Array.isArray(dbSuppliers)) dbSuppliers = []
@@ -167,8 +181,9 @@ export async function fetchGoods() {
       dbSuppliers = [] // Continue with empty suppliers array
     }
 
+    let dbCnCodes: CnCode[] =[];
     // Fetch CN codes for relation - with error handling
-    let dbCnCodes = []
+    
     try {
       dbCnCodes = await db.select().from(cnCodesTable)
       if (!Array.isArray(dbCnCodes)) dbCnCodes = []

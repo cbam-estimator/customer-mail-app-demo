@@ -1,27 +1,43 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import type { GoodsImportRow } from "@/types/excel"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format, isValid } from "date-fns"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { GoodsImportRow } from "@/types/excel";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format, isValid } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface EditGoodsEntryDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (updatedEntry: GoodsImportRow) => void
-  entry: GoodsImportRow | null
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (updatedEntry: GoodsImportRow) => void;
+  entry: GoodsImportRow | null;
 }
 
-export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoodsEntryDialogProps) {
+export function EditGoodsEntryDialog({
+  isOpen,
+  onClose,
+  onSave,
+  entry,
+}: EditGoodsEntryDialogProps) {
   const [editedEntry, setEditedEntry] = useState<GoodsImportRow>({
+    id: 1,
     remarks: "",
     cnCode: "",
     manufacturer: "",
@@ -34,8 +50,9 @@ export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoo
     importFile: "",
     seeDirect: 0,
     seeIndirect: 0,
-  })
-  const [date, setDate] = useState<Date>(editedEntry.date || new Date())
+    supplierId: 1,
+  });
+  const [date, setDate] = useState<Date>(editedEntry.date || new Date());
 
   useEffect(() => {
     if (entry) {
@@ -43,35 +60,46 @@ export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoo
       const entryWithSEE = {
         ...entry,
         seeDirect:
-          entry.seeDirect !== undefined ? entry.seeDirect : Number.parseFloat((Math.random() * 3 + 1.5).toFixed(2)),
+          entry.seeDirect !== undefined
+            ? entry.seeDirect
+            : Number.parseFloat((Math.random() * 3 + 1.5).toFixed(2)),
         seeIndirect:
-          entry.seeIndirect !== undefined ? entry.seeIndirect : Number.parseFloat((Math.random() * 3 + 1.5).toFixed(2)),
-      }
-      setEditedEntry(entryWithSEE)
-      setDate(entry.date && isValid(new Date(entry.date)) ? new Date(entry.date) : new Date())
+          entry.seeIndirect !== undefined
+            ? entry.seeIndirect
+            : Number.parseFloat((Math.random() * 3 + 1.5).toFixed(2)),
+      };
+      setEditedEntry(entryWithSEE);
+      setDate(
+        entry.date && isValid(new Date(entry.date))
+          ? new Date(entry.date)
+          : new Date()
+      );
     }
-  }, [entry])
+  }, [entry]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setEditedEntry((prev) => ({
       ...prev,
-      [name]: name === "quantity" || name === "seeDirect" || name === "seeIndirect" ? Number.parseFloat(value) : value,
-    }))
-  }
+      [name]:
+        name === "quantity" || name === "seeDirect" || name === "seeIndirect"
+          ? Number.parseFloat(value)
+          : value,
+    }));
+  };
 
   const getQuarter = (date: Date) => {
-    const month = date.getMonth()
-    return `Q${Math.floor(month / 3) + 1}-${date.getFullYear()}`
-  }
+    const month = date.getMonth();
+    return `Q${Math.floor(month / 3) + 1}-${date.getFullYear()}`;
+  };
 
   const handleSave = () => {
     onSave({
       ...editedEntry,
       date: isValid(date) ? date : new Date(),
       quarter: getQuarter(isValid(date) ? date : new Date()),
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -121,7 +149,13 @@ export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoo
             <Label htmlFor="unit" className="text-right">
               Unit
             </Label>
-            <Input id="unit" name="unit" value={editedEntry.unit} onChange={handleInputChange} className="col-span-3" />
+            <Input
+              id="unit"
+              name="unit"
+              value={editedEntry.unit}
+              onChange={handleInputChange}
+              className="col-span-3"
+            />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="productionMethod" className="text-right">
@@ -197,7 +231,10 @@ export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoo
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
-                  className={cn("w-[280px] justify-start text-left font-normal", !date && "text-muted-foreground")}
+                  className={cn(
+                    "w-[280px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
                 >
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
@@ -216,14 +253,24 @@ export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoo
             <Label htmlFor="quarter" className="text-right">
               Quarter
             </Label>
-            <Input id="quarter" value={getQuarter(date)} className="col-span-3" readOnly />
+            <Input
+              id="quarter"
+              value={getQuarter(date)}
+              className="col-span-3"
+              readOnly
+            />
           </div>
           {editedEntry.importFile && (
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="importFile" className="text-right">
                 Import File
               </Label>
-              <Input id="importFile" value={editedEntry.importFile} className="col-span-3" readOnly />
+              <Input
+                id="importFile"
+                value={editedEntry.importFile}
+                className="col-span-3"
+                readOnly
+              />
             </div>
           )}
         </div>
@@ -234,5 +281,5 @@ export function EditGoodsEntryDialog({ isOpen, onClose, onSave, entry }: EditGoo
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

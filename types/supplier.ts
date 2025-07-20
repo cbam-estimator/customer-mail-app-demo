@@ -22,7 +22,13 @@ export interface HistoryEvent {
   type: "email_sent" | "response_received" | "status_change" | "consultation" | "document_update"
   date: string
   description?: string
-  messageContent?: string
+  messageContent: string
+  icon?: string // Optional icon for the event
+  nextReportingDays?: number // Optional field to indicate next reporting days
+  title?: string // Optional title for the event
+  sender:string;
+  attachments:string[]
+  
 }
 
 export interface Supplier {
@@ -52,6 +58,14 @@ export interface Supplier {
   consultationHours: number
   history?: HistoryEvent[]
   lastUpdated?: string
+  see_direct:number,
+  see_indirect:number,
+  see_total:number,
+  emission_factor:number,
+  electricity_emissions:number
+  productionMethodCode?: string 
+
+
 }
 
 export interface CNCode {

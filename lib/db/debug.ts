@@ -7,7 +7,8 @@ export async function getTableStructure(tableName: string) {
     const query = `PRAGMA table_info(${tableName});`
 
     // Execute the raw query
-    const result = await db.execute(query)
+   // const result = await db.execute(query)
+   const result= await db.$client.execute(query)
 
     return {
       success: true,
