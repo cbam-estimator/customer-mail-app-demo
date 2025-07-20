@@ -5,7 +5,7 @@ export enum SupplierStatus {
   UnderConsultation = "Under Consultation",
   Pending = "Pending Info",
   SupportingDocumentsReceived = "Supporting Docs",
-  EmissionDataReceived = "Emission Data",
+  EmissionDataReceived = "Emission Data Received",
   ContactFailed = "Contact Failed",
 }
 
@@ -51,6 +51,7 @@ export interface Supplier {
   cnCodes: string[]
   remarks: string
   status: SupplierStatus
+  
   rawStatus?: string // Add this field to store the original database status
   lastUpdate: string
   files: SupplierFile[]

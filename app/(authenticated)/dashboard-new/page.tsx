@@ -31,6 +31,7 @@ import {
 import { useCompany } from "@/context/company-context";
 import { useMemo } from "react";
 import id from "zod/v4/locales/id.cjs";
+import { eq } from "drizzle-orm";
 
 // Helper function to convert Unix timestamp to Date object
 const unixTimestampToDate = (
@@ -200,6 +201,8 @@ export default function DashboardNew() {
           // Fetch suppliers from the database
           const dbSuppliers = await db.select().from(suppliersTable);
 
+          console.log(dbSuppliers);
+
           // Fetch all persons for contact information
           const persons = await db.select().from(personsTable);
 
@@ -213,23 +216,26 @@ export default function DashboardNew() {
             let status = SupplierStatus.None;
             if (supplier.emission_data_status) {
               switch (supplier.emission_data_status) {
-                case "emission_data_received":
+                case "Emission Data Received":
                   status = SupplierStatus.EmissionDataReceived;
                   break;
-                case "supporting_docs":
+                case "Supporting Docs":
                   status = SupplierStatus.SupportingDocumentsReceived;
                   break;
-                case "contact_failed":
+                case "Contact Failed":
                   status = SupplierStatus.ContactFailed;
                   break;
-                case "pending_info":
+                case "Pending Info":
                   status = SupplierStatus.Pending;
                   break;
-                case "contacted":
+                case "Contacted":
                   status = SupplierStatus.Contacted;
                   break;
-                case "consultation_requested":
+                case "Consultation Requested":
                   status = SupplierStatus.ConsultationRequested;
+                  break;
+                case "Under Consultation":
+                  status = SupplierStatus.UnderConsultation;
                   break;
                 default:
                   // Log unexpected status values for debugging
@@ -458,7 +464,7 @@ export default function DashboardNew() {
   };
 
   // Update the handleSaveSupplier function to set validUntil based on status
-  const handleSaveSupplier = (supplier: Supplier) => {
+  const handleSaveSupplier = async (supplier: Supplier) => {
     // Set validUntil to January 1, 2026 if status is Emission Data or Supporting Docs
     const updatedSupplier = { ...supplier };
     if (
@@ -466,10 +472,29 @@ export default function DashboardNew() {
       supplier.status === SupplierStatus.SupportingDocumentsReceived
     ) {
       updatedSupplier.validUntil = new Date(2026, 0, 1).toISOString(); // January 1, 2026
-    } else {
-      // For other statuses, remove the validUntil property
-      updatedSupplier.validUntil = undefined;
     }
+    // else {
+    //   // For other statuses, remove the validUntil property
+    //   updatedSupplier.validUntil = undefined;
+    // }
+
+    const fieldsToUpdate: Partial<Supplier> = {
+      name: updatedSupplier.name,
+      country: updatedSupplier.country,
+      validUntil: updatedSupplier.validUntil,
+      // remove status from here since it's not a direct DB column
+    };
+
+    // Then when you do the update, spread fieldsToUpdate
+    // and explicitly set emission_data_status from status:
+
+    await db
+      .update(suppliersTable)
+      .set({
+        ...fieldsToUpdate,
+        emission_data_status: updatedSupplier.status, // map here
+      })
+      .where(eq(suppliersTable.id, supplier.id ?? 0));
 
     if (supplier.id) {
       const updatedSuppliers = suppliers.map((s) =>
