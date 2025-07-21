@@ -297,6 +297,8 @@ export default function Dashboard() {
           // Fetch goods from the database
           const dbGoods = await db.select().from(goodsTable);
 
+          console.log("Fetched goods:", dbGoods);
+
           // Fetch suppliers for relation
           const dbSuppliers = await db.select().from(suppliersTable);
 
@@ -353,6 +355,7 @@ export default function Dashboard() {
             };
           });
 
+          console.log("transformedGoods", transformedGoods);
           return { success: true, data: transformedGoods };
         } catch (error) {
           console.error("Error fetching goods:", error);
