@@ -561,15 +561,12 @@ export function EnhancedDashboard({
 
   // Function to render the status icon in tabs
   const renderTabStatusIcon = (
-    quarterStats: ReturnType<typeof getQuarterStats>,
+    _quarterStats: ReturnType<typeof getQuarterStats>,
     isActive: boolean
   ) => {
-    // Check if a report exists for this quarter in the CBAM Reports
-    const reportExists = quarterStats.reportExists;
-
-    // If a report exists, show the check icon, otherwise show the pending/clock icon
-    const IconComponent = reportExists ? CheckCircle2 : Clock;
-    const iconColor = reportExists ? "text-green-500" : "text-amber-500";
+    // Always render the completed state (green check icon)
+    const IconComponent = CheckCircle2;
+    const iconColor = "text-green-500";
 
     return (
       <IconComponent
