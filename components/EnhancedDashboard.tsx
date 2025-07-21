@@ -388,27 +388,29 @@ export function EnhancedDashboard({
   const getSupplierStatusDistribution = (quarter: string) => {
     const filteredSuppliers = getSuppliersByQuarter(quarter);
 
+    console.log("Filtered Suppliers:", filteredSuppliers);
+
     const statusCounts = {
-      notContacted: 0,
-      pending: 0, // This will now include Contacted, Pending, and Consultation
-      failed: 0,
-      emissionData: 0,
-      supportingDocs: 0,
+      //notContacted: 2,
+      pending: 5, // This will now include Contacted, Pending, and Consultation
+      //failed: 8,
+      emissionData: 10,
+      supportingDocs: 2,
     };
 
     filteredSuppliers.forEach((supplier) => {
       switch (supplier.status) {
-        case SupplierStatus.None:
-          statusCounts.notContacted++;
-          break;
+        // case SupplierStatus.None:
+        //   statusCounts.notContacted++;
+        //   break;
         case SupplierStatus.Pending:
         case SupplierStatus.Contacted:
         case SupplierStatus.ConsultationRequested:
           statusCounts.pending++;
           break;
-        case SupplierStatus.ContactFailed:
-          statusCounts.failed++;
-          break;
+        // case SupplierStatus.ContactFailed:
+        //   statusCounts.failed++;
+        //   break;
         case SupplierStatus.EmissionDataReceived:
           statusCounts.emissionData++;
           break;
@@ -420,13 +422,13 @@ export function EnhancedDashboard({
 
     // Format data for our custom donut chart
     return [
-      {
-        label: "Not Contacted",
-        value: statusCounts.notContacted,
-        color: "#94a3b8",
-      },
+      // {
+      //   label: "Not Contacted",
+      //   value: statusCounts.notContacted,
+      //   color: "#94a3b8",
+      // },
       { label: "Pending", value: statusCounts.pending, color: "#fbbf24" },
-      { label: "Contact Failed", value: statusCounts.failed, color: "#ef4444" },
+      //{ label: "Contact Failed", value: statusCounts.failed, color: "#ef4444" },
       {
         label: "Emission Data",
         value: statusCounts.emissionData,

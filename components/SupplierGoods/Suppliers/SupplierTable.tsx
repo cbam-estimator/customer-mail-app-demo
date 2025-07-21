@@ -1016,7 +1016,7 @@ export function SupplierTable({
                     </Tooltip>
                   </div>
                 </TableCell>
-                <TableCell className="w-32">
+                {/* <TableCell className="w-32">
                   {supplierItem.validUntil &&
                   isValid(new Date(supplierItem.validUntil)) ? (
                     <Tooltip
@@ -1050,7 +1050,7 @@ export function SupplierTable({
                   ) : (
                     <span className="text-gray-400">-</span>
                   )}
-                </TableCell>
+                </TableCell> */}
                 <TableCell className="w-32">
                   <Tooltip
                   // content={format(new Date(), "dd/MM/yyyy")}
