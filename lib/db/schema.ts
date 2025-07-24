@@ -8,7 +8,7 @@ export const cnCodes = sqliteTable("cn_codes", {
   description: text("description"),
   see_direct: real("see_direct"),
   see_indirect: real("see_indirect"),
-  supplierId:real("supplier_id")
+  supplierId: real("supplier_id")
 })
 
 export const persons = sqliteTable("persons", {
@@ -32,7 +32,7 @@ export const suppliers = sqliteTable("suppliers", {
   company_mail: text("company_mail"),
   latitude: real("latitude"),
   longitude: real("longitude"),
-  remarks: text("remarks"), 
+  remarks: text("remarks"),
   emission_data_status: text("emission_data_status"),
   emission_data_valid_until: integer("emission_data_valid_until"),
   consulting: integer("consulting"),

@@ -1055,7 +1055,12 @@ export function SupplierTable({
                   <Tooltip
                   // content={format(new Date(), "dd/MM/yyyy")}
                   >
-                    <span>{format(new Date(), "dd/MM/yyyy")}</span>
+                    {supplierItem.status ===
+                            SupplierStatus.EmissionDataReceived && (
+                              <span>{format(new Date(), "dd/MM/yyyy")}</span>
+                          )}
+                    
+                   
                   </Tooltip>
                 </TableCell>
                 <TableCell>

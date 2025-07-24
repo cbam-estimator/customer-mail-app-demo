@@ -32,6 +32,7 @@ import { useCompany } from "@/context/company-context";
 import { useMemo } from "react";
 import id from "zod/v4/locales/id.cjs";
 import { eq } from "drizzle-orm";
+import { EnhancedDashboard } from "@/components/EnhancedDashboard";
 
 // Helper function to convert Unix timestamp to Date object
 const unixTimestampToDate = (
@@ -101,14 +102,73 @@ const initialSuppliers: Supplier[] = [
     remarks: "Die Beispiele werden nicht erfasst. Bitte nicht löschen.",
     files: [],
     consultationHours: 0,
-
     see_direct: 1.2,
     see_indirect: 0.8,
     see_total: 2.0,
     emission_factor: 1.5,
     electricity_emissions: 0.5,
   },
-  // Add more sample suppliers if needed
+  // Additional Q2-2026 suppliers (IDs start from 21)
+  {
+    id: 21,
+    name: "Q2 Metals GmbH",
+    country: "Germany",
+    cnCodes: ["7208 1234", "7209 5678"],
+    status: SupplierStatus.EmissionDataReceived,
+    lastUpdate: new Date().toISOString(),
+    validUntil: new Date(2026, 3, 1).toISOString(), // April 1, 2026
+    address: {
+      country: "Germany",
+      street: "Industriestrasse",
+      streetNumber: "12",
+      additionalLine: "",
+      postcode: "10115",
+      city: "Berlin",
+    },
+    contactPerson: {
+      name: "Hans Müller",
+      email: "h.mueller@q2metals.de",
+      phone: "+49 30 123456",
+    },
+    remarks: "Q2-2026 test supplier.",
+    files: [],
+    consultationHours: 2,
+    see_direct: 2.1,
+    see_indirect: 1.3,
+    see_total: 3.4,
+    emission_factor: 1.2,
+    electricity_emissions: 0.7,
+  },
+  {
+    id: 22,
+    name: "Spring Steel Ltd",
+    country: "UK",
+    cnCodes: ["7210 1111"],
+    status: SupplierStatus.EmissionDataReceived,
+    lastUpdate: new Date().toISOString(),
+    validUntil: new Date(2026, 3, 15).toISOString(), // April 15, 2026
+    address: {
+      country: "UK",
+      street: "Steel Road",
+      streetNumber: "7",
+      additionalLine: "",
+      postcode: "S1 2HH",
+      city: "Sheffield",
+    },
+    contactPerson: {
+      name: "Jane Smith",
+      email: "jane.smith@springsteel.co.uk",
+      phone: "+44 114 555 1234",
+    },
+    remarks: "Another Q2-2026 supplier.",
+    files: [],
+    consultationHours: 1,
+    see_direct: 1.8,
+    see_indirect: 1.1,
+    see_total: 2.9,
+    emission_factor: 1.0,
+    electricity_emissions: 0.4,
+  },
 ];
 
 const initialGoodsImports: GoodsImportRow[] = [
@@ -128,7 +188,39 @@ const initialGoodsImports: GoodsImportRow[] = [
     importFile: "import_2023_Q1.xlsx",
     supplierId: 1, // Assuming this entry belongs to the first supplier
   },
-  // Add more sample goods if needed
+  // Additional Q2-2026 goods imports (IDs and supplierId start from 21)
+  {
+    id: 21,
+    remarks: "Q2-2026 steel import",
+    cnCode: "72081234",
+    manufacturer: "Q2 Metals GmbH",
+    quantity: 5000,
+    unit: "Kg",
+    productionMethod: "P10 - Steel",
+    customsProcedure: "40 - Frei",
+    date: new Date(2026, 3, 10), // April 10, 2026
+    quarter: "Q2-2026",
+    seeDirect: 2.1,
+    seeIndirect: 1.3,
+    importFile: "import_2026_Q2.xlsx",
+    supplierId: 21,
+  },
+  {
+    id: 22,
+    remarks: "Q2-2026 spring steel",
+    cnCode: "72101111",
+    manufacturer: "Spring Steel Ltd",
+    quantity: 3000,
+    unit: "Kg",
+    productionMethod: "P11 - Spring Steel",
+    customsProcedure: "40 - Frei",
+    date: new Date(2026, 4, 5), // May 5, 2026
+    quarter: "Q2-2026",
+    seeDirect: 1.8,
+    seeIndirect: 1.1,
+    importFile: "import_2026_Q2_spring.xlsx",
+    supplierId: 22,
+  },
 ];
 
 export default function DashboardNew() {
@@ -894,7 +986,7 @@ export default function DashboardNew() {
     <TooltipProvider>
       <div className="w-full max-w-none px-4 sm:px-6 lg:px-8">
         {/* Enhanced Dashboard - hidden as requested */}
-        {/* <EnhancedDashboard suppliers={suppliers} goodsImports={goodsImports} /> */}
+       
 
         {/* Supplier and Goods Records with integrated import functionality */}
         <SupplierGoodRecords

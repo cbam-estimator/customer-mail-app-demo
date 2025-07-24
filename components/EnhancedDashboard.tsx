@@ -37,6 +37,9 @@ interface DonutChartProps {
 }
 
 function DonutChart({ data, centerText, centerSubText }: DonutChartProps) {
+
+  console.log("yydata", data);
+
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const radius = 80;
   const strokeWidth = 20;
@@ -306,6 +309,9 @@ export function EnhancedDashboard({
         quarters.add(item.quarter);
       }
     });
+
+    console.log("quarters", quarters);
+
     return Array.from(quarters).sort((a, b) => {
       // Sort quarters chronologically (Q1-2023, Q2-2023, etc.)
       const [aQ, aY] = a.split("-");
@@ -358,12 +364,14 @@ export function EnhancedDashboard({
   const getSupplierIdsWithImportsInQuarter = (quarter: string): Set<number> => {
     const supplierIds = new Set<number>();
 
+  
+
     goodsImports.forEach((item) => {
       if (quarter === "all" || item.quarter === quarter) {
         // Extract supplier ID from manufacturer field if possible
         // This is a workaround since we don't have direct supplier IDs in goodsImports
         // In a real application, you would have a proper relation
-        const supplier = suppliers.find((s) => s.name === item.manufacturer);
+        const supplier = suppliers.find((s) => s.id === item.supplierId);
         if (supplier && supplier.id) {
           supplierIds.add(supplier.id);
         }
@@ -393,47 +401,37 @@ export function EnhancedDashboard({
   const getSupplierStatusDistribution = (quarter: string) => {
     const filteredSuppliers = getSuppliersByQuarter(quarter);
 
-    console.log("Filtered Suppliers:", filteredSuppliers);
+    // Robust status comparison helper
+    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
 
     const statusCounts = {
-      //notContacted: 2,
-      pending: 5, // This will now include Contacted, Pending, and Consultation
-      //failed: 8,
-      emissionData: 10,
+      pending: 2,
+      emissionData: 3,
       supportingDocs: 2,
     };
 
     filteredSuppliers.forEach((supplier) => {
-      switch (supplier.status) {
-        // case SupplierStatus.None:
-        //   statusCounts.notContacted++;
-        //   break;
-        case SupplierStatus.Pending:
-        case SupplierStatus.Contacted:
-        case SupplierStatus.ConsultationRequested:
-          statusCounts.pending++;
-          break;
-        // case SupplierStatus.ContactFailed:
-        //   statusCounts.failed++;
-        //   break;
-        case SupplierStatus.EmissionDataReceived:
-          statusCounts.emissionData++;
-          break;
-        case SupplierStatus.SupportingDocumentsReceived:
-          statusCounts.supportingDocs++;
-          break;
+      const status = supplier.status;
+      if (
+        status === SupplierStatus.Pending ||
+        status === SupplierStatus.Contacted ||
+        status === SupplierStatus.ConsultationRequested
+      ) {
+        statusCounts.pending++;
+      } else if (
+        normalize(status) === normalize(SupplierStatus.EmissionDataReceived)
+      ) {
+        statusCounts.emissionData++;
+      } else if (
+        normalize(status) === normalize(SupplierStatus.SupportingDocumentsReceived)
+      ) {
+        statusCounts.supportingDocs++;
       }
     });
 
     // Format data for our custom donut chart
     return [
-      // {
-      //   label: "Not Contacted",
-      //   value: statusCounts.notContacted,
-      //   color: "#94a3b8",
-      // },
       { label: "Pending", value: statusCounts.pending, color: "#fbbf24" },
-      //{ label: "Contact Failed", value: statusCounts.failed, color: "#ef4444" },
       {
         label: "Emission Data",
         value: statusCounts.emissionData,
