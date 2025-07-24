@@ -513,7 +513,7 @@ export function ForecastVisualization({ goodsImports = [] }: ForecastVisualizati
             break
         }
 
-        return totalEmissions * phaseFactor * certificatePrice
+        return ((totalEmissions * phaseFactor * certificatePrice )*100000);
       })
 
       setChartData({

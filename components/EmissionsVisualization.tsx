@@ -391,7 +391,7 @@ export function EmissionsVisualization({
             (item) => (item.quarter || "Unknown") === quarter
           );
           const directEmissions = quarterItems.reduce((sum, item) => {
-            return sum + (item.seeDirect || 0) * (item.quantity || 0);
+            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
           }, 0);
           return Math.round(directEmissions);
         });
@@ -401,7 +401,7 @@ export function EmissionsVisualization({
             (item) => (item.quarter || "Unknown") === quarter
           );
           const indirectEmissions = quarterItems.reduce((sum, item) => {
-            return sum + (item.seeIndirect || 0) * (item.quantity || 0);
+            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
           }, 0);
           return Math.round(indirectEmissions);
         });
@@ -463,7 +463,7 @@ export function EmissionsVisualization({
           const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity; // Already in tCO2
+          const totalEmissions = avgSeeTotal * importQuantity * 100000; // Already in tCO2, now scaled
 
           return {
             label: quarter,
@@ -521,9 +521,9 @@ export function EmissionsVisualization({
           );
           const totalEmissions = supplierItems.reduce((sum, item) => {
             const directEmissions =
-              (item.seeDirect || 0) * (item.quantity || 0);
+              ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
             const indirectEmissions =
-              (item.seeIndirect || 0) * (item.quantity || 0);
+              ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
             return sum + directEmissions + indirectEmissions;
           }, 0);
           supplierEmissions.set(supplier, totalEmissions);
@@ -556,7 +556,7 @@ export function EmissionsVisualization({
             (item) => (item.manufacturer || "Unknown") === supplier
           );
           const directEmissions = supplierItems.reduce((sum, item) => {
-            return sum + (item.seeDirect || 0) * (item.quantity || 0);
+            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
           }, 0);
           return Math.round(directEmissions);
         });
@@ -566,7 +566,7 @@ export function EmissionsVisualization({
             (item) => (item.manufacturer || "Unknown") === supplier
           );
           const indirectEmissions = supplierItems.reduce((sum, item) => {
-            return sum + (item.seeIndirect || 0) * (item.quantity || 0);
+            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
           }, 0);
           return Math.round(indirectEmissions);
         });
@@ -628,7 +628,7 @@ export function EmissionsVisualization({
           const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity; // Already in tCO2
+          const totalEmissions = avgSeeTotal * importQuantity * 100000; // Already in tCO2, now scaled
 
           return {
             label: supplier,
@@ -693,7 +693,7 @@ export function EmissionsVisualization({
             (item) => (item.cnCode || "Unknown") === cnCode
           );
           const directEmissions = cnCodeItems.reduce((sum, item) => {
-            return sum + (item.seeDirect || 0) * (item.quantity || 0);
+            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
           }, 0);
           return Math.round(directEmissions);
         });
@@ -703,7 +703,7 @@ export function EmissionsVisualization({
             (item) => (item.cnCode || "Unknown") === cnCode
           );
           const indirectEmissions = cnCodeItems.reduce((sum, item) => {
-            return sum + (item.seeIndirect || 0) * (item.quantity || 0);
+            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
           }, 0);
           return Math.round(indirectEmissions);
         });
@@ -765,7 +765,7 @@ export function EmissionsVisualization({
           const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity; // Already in tCO2
+          const totalEmissions = avgSeeTotal * importQuantity * 100000; // Already in tCO2, now scaled
 
           return {
             label: cnCode,

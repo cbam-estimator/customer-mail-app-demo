@@ -173,14 +173,19 @@ interface ReportStatusBoxProps {
 
 function ReportStatusBox({ activeQuarter }: ReportStatusBoxProps) {
   // Check if a report exists for the active quarter
+  // const reportExists = useMemo(() => {
+  //   // If "all" is selected, check if any reports exist
+  //   if (activeQuarter === "all") {
+  //     return mockCBAMReports.length > 0;
+  //   }
+
+  //   // Otherwise, check if a report exists for the specific quarter
+  //   return mockCBAMReports.some((report) => report.quarter === activeQuarter);
+  // }, [activeQuarter]);
+
   const reportExists = useMemo(() => {
     // If "all" is selected, check if any reports exist
-    if (activeQuarter === "all") {
-      return mockCBAMReports.length > 0;
-    }
-
-    // Otherwise, check if a report exists for the specific quarter
-    return mockCBAMReports.some((report) => report.quarter === activeQuarter);
+    return true;
   }, [activeQuarter]);
 
   const reportUrl =
@@ -565,7 +570,8 @@ export function EnhancedDashboard({
     isActive: boolean
   ) => {
     // Check if a report exists for this quarter in the CBAM Reports
-    const reportExists = quarterStats.reportExists;
+    //const reportExists = quarterStats.reportExists;
+    const reportExists = true;
 
     // If a report exists, show the check icon, otherwise show the pending/clock icon
     const IconComponent = reportExists ? CheckCircle2 : Clock;
@@ -727,7 +733,7 @@ function QuarterDashboard({
             </h4>
             <div className="flex items-end justify-between">
               <div className="text-3xl font-bold">
-                {(stats.totalImports / 1000).toLocaleString()} tons
+                {((stats.totalImports / 1000) * 1000).toLocaleString()} tons
               </div>
               {isPreviousQuarterAvailable && (
                 <div className="flex flex-col items-end">
@@ -760,7 +766,7 @@ function QuarterDashboard({
             </h4>
             <div className="flex items-end justify-between">
               <div className="text-3xl font-bold">
-                {(stats.totalEmissions / 1000).toLocaleString()} t CO₂
+                {((stats.totalEmissions / 1000)* 1000).toLocaleString()} t CO₂
               </div>
               {isPreviousQuarterAvailable && (
                 <div className="flex flex-col items-end">
