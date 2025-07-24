@@ -391,7 +391,7 @@ export function EmissionsVisualization({
             (item) => (item.quarter || "Unknown") === quarter
           );
           const directEmissions = quarterItems.reduce((sum, item) => {
-            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
+            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 20000);
           }, 0);
           return Math.round(directEmissions);
         });
@@ -401,7 +401,7 @@ export function EmissionsVisualization({
             (item) => (item.quarter || "Unknown") === quarter
           );
           const indirectEmissions = quarterItems.reduce((sum, item) => {
-            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
+            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 20000);
           }, 0);
           return Math.round(indirectEmissions);
         });
@@ -411,7 +411,7 @@ export function EmissionsVisualization({
             (item) => (item.quarter || "Unknown") === quarter
           );
           return quarterItems.reduce(
-            (sum, item) => sum + (item.quantity || 0),
+            (sum, item) => sum + ((item.quantity || 0) * 10000),
             0
           );
         });
@@ -428,7 +428,7 @@ export function EmissionsVisualization({
             quarterItems.map((item) => item.cnCode)
           ).size;
           const importQuantity = quarterItems.reduce(
-            (sum, item) => sum + (item.quantity || 0),
+            (sum, item) => sum + ((item.quantity || 0) * 10000),
             0
           );
 
@@ -439,7 +439,7 @@ export function EmissionsVisualization({
           if (quarterItems.length > 0) {
             // Calculate weighted average SEE values
             const totalWeight = quarterItems.reduce(
-              (sum, item) => sum + (item.quantity || 0),
+              (sum, item) => sum + ((item.quantity || 0) * 10000),
               0
             );
 
@@ -447,14 +447,14 @@ export function EmissionsVisualization({
               avgSeeDirect =
                 quarterItems.reduce(
                   (sum, item) =>
-                    sum + (item.seeDirect || 0) * (item.quantity || 0),
+                    sum + (item.seeDirect || 0) * ((item.quantity || 0) * 10000),
                   0
                 ) / totalWeight;
 
               avgSeeIndirect =
                 quarterItems.reduce(
                   (sum, item) =>
-                    sum + (item.seeIndirect || 0) * (item.quantity || 0),
+                    sum + (item.seeIndirect || 0) * ((item.quantity || 0) * 10000),
                   0
                 ) / totalWeight;
             }
@@ -463,7 +463,7 @@ export function EmissionsVisualization({
           const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity * 100000; // Already in tCO2, now scaled
+          const totalEmissions = avgSeeTotal * importQuantity * 2; // importQuantity already scaled by 10,000, so multiply by 2*10,000 = 20,000 overall
 
           return {
             label: quarter,
@@ -521,9 +521,9 @@ export function EmissionsVisualization({
           );
           const totalEmissions = supplierItems.reduce((sum, item) => {
             const directEmissions =
-              ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
+              ((item.seeDirect || 0) * (item.quantity || 0) * 20000);
             const indirectEmissions =
-              ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
+              ((item.seeIndirect || 0) * (item.quantity || 0) * 20000);
             return sum + directEmissions + indirectEmissions;
           }, 0);
           supplierEmissions.set(supplier, totalEmissions);
@@ -556,7 +556,7 @@ export function EmissionsVisualization({
             (item) => (item.manufacturer || "Unknown") === supplier
           );
           const directEmissions = supplierItems.reduce((sum, item) => {
-            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
+            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 20000);
           }, 0);
           return Math.round(directEmissions);
         });
@@ -566,7 +566,7 @@ export function EmissionsVisualization({
             (item) => (item.manufacturer || "Unknown") === supplier
           );
           const indirectEmissions = supplierItems.reduce((sum, item) => {
-            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
+            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 20000);
           }, 0);
           return Math.round(indirectEmissions);
         });
@@ -576,7 +576,7 @@ export function EmissionsVisualization({
             (item) => (item.manufacturer || "Unknown") === supplier
           );
           return supplierItems.reduce(
-            (sum, item) => sum + (item.quantity || 0),
+            (sum, item) => sum + ((item.quantity || 0) * 10000),
             0
           );
         });
@@ -593,7 +593,7 @@ export function EmissionsVisualization({
             supplierItems.map((item) => item.cnCode)
           ).size;
           const importQuantity = supplierItems.reduce(
-            (sum, item) => sum + (item.quantity || 0),
+            (sum, item) => sum + ((item.quantity || 0) * 10000),
             0
           );
 
@@ -604,7 +604,7 @@ export function EmissionsVisualization({
           if (supplierItems.length > 0) {
             // Calculate weighted average SEE values
             const totalWeight = supplierItems.reduce(
-              (sum, item) => sum + (item.quantity || 0),
+              (sum, item) => sum + ((item.quantity || 0) * 10000),
               0
             );
 
@@ -612,14 +612,14 @@ export function EmissionsVisualization({
               avgSeeDirect =
                 supplierItems.reduce(
                   (sum, item) =>
-                    sum + (item.seeDirect || 0) * (item.quantity || 0),
+                    sum + (item.seeDirect || 0) * ((item.quantity || 0) * 10000),
                   0
                 ) / totalWeight;
 
               avgSeeIndirect =
                 supplierItems.reduce(
                   (sum, item) =>
-                    sum + (item.seeIndirect || 0) * (item.quantity || 0),
+                    sum + (item.seeIndirect || 0) * ((item.quantity || 0) * 10000),
                   0
                 ) / totalWeight;
             }
@@ -628,7 +628,7 @@ export function EmissionsVisualization({
           const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity * 100000; // Already in tCO2, now scaled
+          const totalEmissions = avgSeeTotal * importQuantity * 2; // importQuantity already scaled by 10,000, so multiply by 2*10,000 = 20,000 overall
 
           return {
             label: supplier,
@@ -693,7 +693,7 @@ export function EmissionsVisualization({
             (item) => (item.cnCode || "Unknown") === cnCode
           );
           const directEmissions = cnCodeItems.reduce((sum, item) => {
-            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 100000);
+            return sum + ((item.seeDirect || 0) * (item.quantity || 0) * 20000);
           }, 0);
           return Math.round(directEmissions);
         });
@@ -703,7 +703,7 @@ export function EmissionsVisualization({
             (item) => (item.cnCode || "Unknown") === cnCode
           );
           const indirectEmissions = cnCodeItems.reduce((sum, item) => {
-            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 100000);
+            return sum + ((item.seeIndirect || 0) * (item.quantity || 0) * 20000);
           }, 0);
           return Math.round(indirectEmissions);
         });
@@ -713,7 +713,7 @@ export function EmissionsVisualization({
             (item) => (item.cnCode || "Unknown") === cnCode
           );
           return cnCodeItems.reduce(
-            (sum, item) => sum + (item.quantity || 0),
+            (sum, item) => sum + ((item.quantity || 0) * 10000),
             0
           );
         });
@@ -730,7 +730,7 @@ export function EmissionsVisualization({
             cnCodeItems.map((item) => item.quarter)
           ).size;
           const importQuantity = cnCodeItems.reduce(
-            (sum, item) => sum + (item.quantity || 0),
+            (sum, item) => sum + ((item.quantity || 0) * 10000),
             0
           );
 
@@ -741,7 +741,7 @@ export function EmissionsVisualization({
           if (cnCodeItems.length > 0) {
             // Calculate weighted average SEE values
             const totalWeight = cnCodeItems.reduce(
-              (sum, item) => sum + (item.quantity || 0),
+              (sum, item) => sum + ((item.quantity || 0) * 10000),
               0
             );
 
@@ -749,14 +749,14 @@ export function EmissionsVisualization({
               avgSeeDirect =
                 cnCodeItems.reduce(
                   (sum, item) =>
-                    sum + (item.seeDirect || 0) * (item.quantity || 0),
+                    sum + (item.seeDirect || 0) * ((item.quantity || 0) * 10000),
                   0
                 ) / totalWeight;
 
               avgSeeIndirect =
                 cnCodeItems.reduce(
                   (sum, item) =>
-                    sum + (item.seeIndirect || 0) * (item.quantity || 0),
+                    sum + (item.seeIndirect || 0) * ((item.quantity || 0) * 10000),
                   0
                 ) / totalWeight;
             }
@@ -765,7 +765,7 @@ export function EmissionsVisualization({
           const avgSeeTotal = avgSeeDirect + avgSeeIndirect;
 
           // Calculate total emissions (avg SEE * import quantity)
-          const totalEmissions = avgSeeTotal * importQuantity * 100000; // Already in tCO2, now scaled
+          const totalEmissions = avgSeeTotal * importQuantity * 2; // importQuantity already scaled by 10,000, so multiply by 2*10,000 = 20,000 overall
 
           return {
             label: cnCode,
