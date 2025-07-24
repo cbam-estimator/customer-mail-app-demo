@@ -566,7 +566,7 @@ export function EnhancedDashboard({
 
   // Function to render the status icon in tabs
   const renderTabStatusIcon = (
-    quarterStats: ReturnType<typeof getQuarterStats>,
+    _quarterStats: ReturnType<typeof getQuarterStats>,
     isActive: boolean
   ) => {
     // Check if a report exists for this quarter in the CBAM Reports
@@ -766,7 +766,7 @@ function QuarterDashboard({
             </h4>
             <div className="flex items-end justify-between">
               <div className="text-3xl font-bold">
-                {((stats.totalEmissions / 1000)* 1000).toLocaleString()} t CO₂
+                {((stats.totalEmissions / 1000) * 1000).toLocaleString()} t CO₂
               </div>
               {isPreviousQuarterAvailable && (
                 <div className="flex flex-col items-end">

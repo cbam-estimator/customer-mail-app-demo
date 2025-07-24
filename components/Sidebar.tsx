@@ -50,10 +50,6 @@ export function Sidebar() {
           name: "Financial Forecast",
           href: "/insights/financial-forecast",
         },
-        {
-          name: "Supplier Comparison",
-          href: "/insights/supplier-comparison",
-        },
       ],
     },
     {
